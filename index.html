@@ -1,0 +1,2445 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>PAFL Portfolio Dashboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap');
+
+  /* ---------- Tokens (light, default) ---------- */
+  :root{
+    --bg:#F5F6F8;
+    --surface:#FFFFFF;
+    --surface-2:#0F2C52;      /* rail — brand navy, fixed across themes */
+    --rail-text:#EAF0FA;
+    --rail-text-muted:#9FB2CE;
+    --rail-active-bg:#18396A;
+    --text:#26344A;
+    --text-muted:#5C6B84;
+    --border:#DDE2EA;
+    --border-strong:#C3CBD9;
+    --accent:#9E1B32;
+    --accent-hover:#7E1527;
+    --accent-text:#9E1B32;
+    --accent-contrast:#FFFFFF;
+    --track-fitness:#C99A3E;
+    --track-fitness-bg:#FCEFD6;
+    --track-skill:#2F6690;
+    --track-skill-bg:#E3EDF5;
+    --success:#2E7D4F;
+    --success-bg:#E4F3EA;
+    --warning:#B25E09;
+    --warning-bg:#FBEBDA;
+    --focus-ring:#9E1B32;
+    --shadow:0 1px 2px rgba(15,44,82,.06), 0 6px 20px -8px rgba(15,44,82,.18);
+    --font-scale:1;
+    --radius:10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0B1A2E;
+      --surface:#122544;
+      --rail-active-bg:#1B3F73;
+      --text:#ECEEF3;
+      --text-muted:#A9B4C6;
+      --border:#25396073;
+      --border-strong:#2E4670;
+      --accent:#E15169;
+      --accent-hover:#F06B81;
+      --accent-text:#FF93A6;
+      --accent-contrast:#0B1A2E;
+      --track-fitness:#FAC775;
+      --track-fitness-bg:rgba(250,199,117,.14);
+      --track-skill:#7FB2E5;
+      --track-skill-bg:rgba(127,178,229,.14);
+      --success:#5FCB8B;
+      --success-bg:rgba(95,203,139,.14);
+      --warning:#F2A65A;
+      --warning-bg:rgba(242,166,90,.14);
+      --focus-ring:#FAC775;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 26px -10px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0B1A2E;
+    --surface:#122544;
+    --rail-active-bg:#1B3F73;
+    --text:#ECEEF3;
+    --text-muted:#A9B4C6;
+    --border:#25396073;
+    --border-strong:#2E4670;
+    --accent:#E15169;
+    --accent-hover:#F06B81;
+    --accent-text:#FF93A6;
+    --accent-contrast:#0B1A2E;
+    --track-fitness:#FAC775;
+    --track-fitness-bg:rgba(250,199,117,.14);
+    --track-skill:#7FB2E5;
+    --track-skill-bg:rgba(127,178,229,.14);
+    --success:#5FCB8B;
+    --success-bg:rgba(95,203,139,.14);
+    --warning:#F2A65A;
+    --warning-bg:rgba(242,166,90,.14);
+    --focus-ring:#FAC775;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 26px -10px rgba(0,0,0,.55);
+  }
+  /* ---------- High contrast overlay ---------- */
+  :root[data-contrast="high"]{
+    --border:var(--border-strong);
+    --text-muted:var(--text);
+    --track-fitness-bg:transparent;
+    --track-skill-bg:transparent;
+    --success-bg:transparent;
+    --warning-bg:transparent;
+  }
+  :root[data-contrast="high"] .chip,
+  :root[data-contrast="high"] .card,
+  :root[data-contrast="high"] .field input,
+  :root[data-contrast="high"] .field textarea,
+  :root[data-contrast="high"] .field select{ border-width:2px !important; }
+
+  *{ box-sizing:border-box; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Atkinson Hyperlegible', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-size:calc(16px * var(--font-scale));
+    line-height:1.55;
+  }
+  h1,h2,h3,.display{
+    font-family:'Oswald', 'Atkinson Hyperlegible', system-ui, sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.02em;
+    text-wrap:balance;
+    color:var(--text);
+    margin:0;
+  }
+  .mono{ font-family:'JetBrains Mono', ui-monospace, monospace; font-variant-numeric:tabular-nums; }
+  a{ color:var(--accent-text); }
+  button{ font-family:inherit; }
+  ::selection{ background:var(--track-fitness); color:#1a1305; }
+
+  .skip-link{
+    position:absolute; left:-999px; top:0; background:var(--accent); color:var(--accent-contrast);
+    padding:10px 16px; border-radius:0 0 8px 0; z-index:200; font-weight:700;
+  }
+  .skip-link:focus{ left:0; }
+
+  :focus-visible{ outline:3px solid var(--focus-ring); outline-offset:2px; border-radius:4px; }
+
+  /* ---------- Shell layout ---------- */
+  .shell{ display:flex; min-height:100vh; }
+  .rail{
+    width:232px; flex:none; background:var(--surface-2); color:var(--rail-text);
+    display:flex; flex-direction:column; padding:18px 14px; gap:4px;
+    position:sticky; top:0; height:100vh; overflow-y:auto;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px; padding:6px 8px 16px;
+    border-bottom:1px solid rgba(255,255,255,.12); margin-bottom:10px;
+  }
+  .brand-badge{
+    width:36px; height:36px; border-radius:50%; background:linear-gradient(155deg, var(--track-fitness), #E8A93F);
+    display:flex; align-items:center; justify-content:center; flex:none;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.35);
+  }
+  .brand-badge svg{ width:20px; height:20px; }
+  .brand-text .eyebrow{ font-size:.68rem; letter-spacing:.14em; color:var(--rail-text-muted); text-transform:uppercase; }
+  .brand-text strong{ display:block; font-family:'Oswald'; font-size:1rem; letter-spacing:.03em; text-transform:uppercase; line-height:1.15; }
+
+  .navlist{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:3px; }
+  .navbtn{
+    display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+    background:transparent; border:none; color:var(--rail-text-muted);
+    padding:10px 10px; border-radius:8px; cursor:pointer; font-size:.92rem; font-weight:700;
+    letter-spacing:.01em;
+  }
+  .navbtn .dot{ width:8px; height:8px; border-radius:50%; background:currentColor; opacity:.35; flex:none; }
+  .navbtn[aria-selected="true"]{ background:var(--rail-active-bg); color:#fff; }
+  .navbtn[aria-selected="true"] .dot{ opacity:1; background:var(--track-fitness); }
+  .navbtn:hover{ color:#fff; }
+  .navbtn .pct{ margin-left:auto; font-family:'JetBrains Mono'; font-size:.72rem; opacity:.85; }
+
+  .rail-foot{ margin-top:auto; padding-top:12px; border-top:1px solid rgba(255,255,255,.12); }
+  .rail-save{ font-size:.72rem; color:var(--rail-text-muted); display:flex; align-items:center; gap:6px; padding:6px 8px; }
+  .rail-save .led{ width:7px; height:7px; border-radius:50%; background:var(--success); box-shadow:0 0 0 3px rgba(95,203,139,.25); }
+
+  .main{ flex:1; min-width:0; }
+  .topbar{
+    position:sticky; top:0; z-index:20; display:flex; justify-content:flex-end; gap:8px;
+    padding:10px 20px; background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(6px); border-bottom:1px solid var(--border);
+  }
+  .toolbtn{
+    display:flex; align-items:center; gap:6px; background:var(--surface); color:var(--text);
+    border:1px solid var(--border); border-radius:8px; padding:7px 11px; font-size:.82rem; font-weight:700;
+    cursor:pointer;
+  }
+  .toolbtn[aria-pressed="true"]{ border-color:var(--accent); color:var(--accent-text); }
+
+  .content{ max-width:920px; margin:0 auto; padding:26px 22px 80px; }
+  .panel{ display:none; animation:fade .25s ease; }
+  .panel.is-active{ display:block; }
+  @media (prefers-reduced-motion: reduce){ .panel{ animation:none; } }
+  @keyframes fade{ from{ opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+
+  .page-head{ margin-bottom:22px; }
+  .page-head .kicker{ color:var(--accent-text); font-weight:700; font-size:.78rem; letter-spacing:.14em; text-transform:uppercase; display:block; margin-bottom:6px; }
+  .page-head h1{ font-size:1.7rem; }
+  .page-head p{ color:var(--text-muted); max-width:62ch; margin-top:8px; }
+
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:18px 20px; box-shadow:var(--shadow);
+  }
+  .stack{ display:flex; flex-direction:column; gap:16px; }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:760px){ .grid-2{ grid-template-columns:1fr; } }
+
+  .section-title{ font-size:1.05rem; margin-bottom:4px; }
+  .section-help{ color:var(--text-muted); font-size:.88rem; margin:0 0 14px; max-width:62ch; }
+
+  .field{ display:flex; flex-direction:column; gap:5px; margin-bottom:14px; }
+  .field:last-child{ margin-bottom:0; }
+  .field label{ font-weight:700; font-size:.84rem; }
+  .field .hint{ font-size:.78rem; color:var(--text-muted); }
+  .field input[type="text"], .field input[type="url"], .field input[type="date"],
+  .field input[type="number"], .field textarea, .field select{
+    font:inherit; font-size:.95rem; padding:9px 11px; border-radius:8px; border:1px solid var(--border-strong);
+    background:var(--bg); color:var(--text); width:100%;
+  }
+  .field textarea{ resize:vertical; min-height:74px; }
+  .field input:focus, .field textarea:focus, .field select:focus{ border-color:var(--accent); }
+
+  .btn{
+    display:inline-flex; align-items:center; gap:7px; border-radius:8px; border:1px solid transparent;
+    padding:9px 15px; font-weight:700; font-size:.85rem; cursor:pointer;
+  }
+  .btn-primary{ background:var(--accent); color:var(--accent-contrast); }
+  .btn-primary:hover{ background:var(--accent-hover); }
+  .btn-ghost{ background:transparent; border-color:var(--border-strong); color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--accent); color:var(--accent-text); }
+  .btn-sm{ padding:6px 10px; font-size:.78rem; }
+  .btn-danger-ghost{ background:transparent; border-color:var(--border-strong); color:var(--warning); }
+
+  .chip{ display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:4px 11px; font-size:.76rem; font-weight:700; border:1px solid transparent; }
+  .chip-fitness{ background:var(--track-fitness-bg); color:var(--track-fitness); border-color:color-mix(in srgb, var(--track-fitness) 45%, transparent); }
+  .chip-skill{ background:var(--track-skill-bg); color:var(--track-skill); border-color:color-mix(in srgb, var(--track-skill) 45%, transparent); }
+  .chip-muted{ background:var(--bg); color:var(--text-muted); border-color:var(--border); }
+
+  .track-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .track-head .swatch{ width:14px; height:14px; border-radius:4px; }
+  .track-head.fitness .swatch{ background:var(--track-fitness); }
+  .track-head.skill .swatch{ background:var(--track-skill); }
+
+  .smart-row{ display:grid; grid-template-columns:42px 1fr; gap:12px; align-items:start; margin-bottom:12px; }
+  .smart-letter{
+    width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    font-family:'Oswald'; font-weight:700; font-size:1.15rem; flex:none; color:#fff;
+  }
+  .fitness .smart-letter{ background:var(--track-fitness); color:#3A2B04; }
+  .skill .smart-letter{ background:var(--track-skill); }
+
+  .statement{
+    border:1px dashed var(--border-strong); border-radius:8px; padding:12px 14px; font-size:.92rem;
+    background:var(--bg); color:var(--text);
+  }
+  .statement em{ color:var(--text-muted); font-style:normal; }
+
+  /* Overview stat tiles */
+  .stat-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+  @media (max-width:760px){ .stat-row{ grid-template-columns:1fr 1fr; } }
+  .stat-tile{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; box-shadow:var(--shadow); }
+  .stat-tile .num{ font-family:'JetBrains Mono'; font-weight:700; font-size:1.7rem; }
+  .stat-tile .lbl{ font-size:.74rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; font-weight:700; margin-top:2px; }
+
+  .progress-track{ height:8px; border-radius:999px; background:var(--border); overflow:hidden; }
+  .progress-fill{ height:100%; border-radius:999px; background:var(--accent); transition:width .4s ease; }
+  @media (prefers-reduced-motion: reduce){ .progress-fill{ transition:none; } }
+
+  .part-row{ display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .part-row:last-child{ border-bottom:none; }
+  .part-row .p-icon{ width:34px; height:34px; border-radius:8px; background:var(--bg); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex:none; }
+  .part-row .p-body{ flex:1; min-width:0; }
+  .part-row .p-title{ font-weight:700; font-size:.92rem; }
+  .part-row .p-track{ margin-top:6px; }
+  .part-row .p-pct{ font-family:'JetBrains Mono'; font-weight:700; font-size:.85rem; width:42px; text-align:right; flex:none; }
+  .part-row .p-go{ flex:none; }
+
+  /* dynamic list rows */
+  .row-list{ display:flex; flex-direction:column; gap:10px; }
+  .row-item{ border:1px solid var(--border); border-radius:8px; padding:12px; background:var(--bg); }
+  .row-item-head{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; }
+  .row-item-head .idx{ font-family:'JetBrains Mono'; font-weight:700; color:var(--text-muted); font-size:.8rem; }
+
+  .quickadd-row{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:8px 0 2px; }
+  .quickadd-row .hint{ margin-right:2px; }
+  .quickadd-row .chip{ padding:3px 10px; cursor:pointer; border:1px solid var(--border); }
+
+  .history-list{ border:1px solid var(--border); border-radius:8px; background:var(--bg); max-height:220px; overflow-y:auto; }
+  .history-list ul{ list-style:none; margin:0; padding:0; }
+  .history-list li{ padding:7px 12px; border-bottom:1px solid var(--border); font-size:.8rem; color:var(--text-muted); }
+  .history-list li:last-child{ border-bottom:none; }
+  .history-list li strong{ color:var(--text); font-weight:600; }
+  .history-list .history-empty{ padding:10px 12px; margin:0; }
+
+  table.meas-table{ width:100%; border-collapse:collapse; font-size:.86rem; }
+  table.meas-table th{ text-align:left; color:var(--text-muted); font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; padding:6px 8px; border-bottom:1px solid var(--border); }
+  table.meas-table td{ padding:6px 8px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  table.meas-table input{ width:100%; min-width:64px; }
+  .spark{ display:block; }
+
+  .heatstrip{ display:flex; gap:3px; flex-wrap:wrap; margin:10px 0 4px; }
+  .heatstrip .hs-cell{ width:14px; height:14px; border-radius:3px; background:var(--border); }
+  .heatstrip .hs-cell.both{ background:linear-gradient(135deg, var(--track-fitness) 50%, var(--track-skill) 50%); }
+  .heatstrip .hs-cell.fit{ background:var(--track-fitness); }
+  .heatstrip .hs-cell.skl{ background:var(--track-skill); }
+  .legend{ display:flex; gap:14px; font-size:.76rem; color:var(--text-muted); align-items:center; flex-wrap:wrap; }
+  .legend .sw{ width:10px; height:10px; border-radius:3px; display:inline-block; margin-right:5px; vertical-align:-1px; }
+
+  .todo-row{ display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
+  .todo-row:last-child{ border-bottom:none; }
+  .todo-row input[type="checkbox"]{ width:19px; height:19px; margin-top:2px; accent-color:var(--accent); flex:none; }
+  .todo-row.done label{ color:var(--text-muted); text-decoration:line-through; }
+
+  .glossary dt{ font-family:'Oswald'; font-weight:600; font-size:.86rem; text-transform:uppercase; letter-spacing:.02em; color:var(--accent-text); margin-top:10px; }
+  .glossary dd{ margin:2px 0 0; color:var(--text); font-size:.9rem; }
+
+  .callout{ border-left:4px solid var(--track-fitness); background:var(--track-fitness-bg); border-radius:0 8px 8px 0; padding:12px 14px; font-size:.9rem; }
+  .quote-block{ font-family:'Oswald'; font-size:1.05rem; text-transform:none; letter-spacing:0; line-height:1.5; padding:6px 0; }
+  .cite{ display:block; margin-top:8px; font-size:.78rem; color:var(--text-muted); font-family:'Atkinson Hyperlegible'; }
+
+  .modal-backdrop{ position:fixed; inset:0; background:rgba(10,18,32,.55); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; }
+  .modal-backdrop.is-open{ display:flex; }
+  .modal{ background:var(--surface); border-radius:12px; padding:22px; max-width:420px; width:100%; box-shadow:var(--shadow); border:1px solid var(--border); }
+  .modal h2{ font-size:1.05rem; margin-bottom:8px; }
+  .modal p{ color:var(--text-muted); font-size:.9rem; }
+  .modal .row{ display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
+
+  .toast{
+    position:fixed; bottom:18px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+    background:var(--text); color:var(--bg); padding:10px 18px; border-radius:999px; font-size:.85rem; font-weight:700;
+    box-shadow:var(--shadow); z-index:150; transition:opacity .25s ease, transform .25s ease; pointer-events:none;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  @media (max-width:760px){
+    .shell{ flex-direction:column; }
+    .rail{ position:static; width:auto; height:auto; flex-direction:row; overflow-x:auto; padding:10px 12px; gap:8px; align-items:center; }
+    .brand{ border-bottom:none; margin-bottom:0; padding:0 6px 0 0; }
+    .navlist{ flex-direction:row; gap:6px; }
+    .navbtn{ white-space:nowrap; }
+    .navbtn .pct{ display:none; }
+    .rail-foot{ display:none; }
+    .content{ padding:20px 16px 70px; }
+    .stat-row{ grid-template-columns:1fr 1fr; }
+  }
+
+  /* ---------- Print fallback (for viewers without native downloads) ---------- */
+  @media print{
+    body.print-mode .rail, body.print-mode .topbar, body.print-mode .toast,
+    body.print-mode .modal-backdrop{ display:none !important; }
+    body.print-mode .shell{ display:block; }
+    body.print-mode .content{ max-width:100%; padding:0; margin:0; }
+    body.print-mode .panel{ display:none !important; }
+    body.print-mode .panel.print-active{ display:block !important; }
+    body.print-mode button{ display:none !important; }
+    body.print-mode .no-print{ display:none !important; }
+    body.print-mode .field textarea, body.print-mode .field input{ border-color:#999; color:#000; background:#fff; }
+    body.print-mode.print-plan-only #research-fitness-card,
+    body.print-mode.print-plan-only #research-skill-card{ display:none !important; }
+    body.print-mode .card{ box-shadow:none; border:1px solid #ccc; break-inside:avoid; }
+  }
+</style>
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<div class="shell">
+  <nav class="rail" aria-label="Portfolio sections">
+    <div class="brand">
+      <span class="brand-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0F2C52" stroke-width="2.2" stroke-linecap="round"><path d="M12 3v18M7 8l5-5 5 5M7 16l5 5 5-5"/></svg>
+      </span>
+      <span class="brand-text">
+        <span class="eyebrow">FIS Warriors</span>
+        <strong>PAFL Portfolio</strong>
+      </span>
+    </div>
+    <ul class="navlist" role="tablist" aria-orientation="vertical" id="navlist"></ul>
+    <div class="rail-foot">
+      <div class="rail-save" id="save-indicator"><span class="led" aria-hidden="true"></span><span id="save-text">Saved on this device</span></div>
+    </div>
+  </nav>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="toolbtn" id="btn-textsize" type="button" aria-pressed="false" aria-label="Toggle larger text">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5h13v2M9.5 5v14M7 19h5M16 12h5M18.5 12v7"/></svg>
+        Text size
+      </button>
+      <button class="toolbtn" id="btn-contrast" type="button" aria-pressed="false" aria-label="Toggle high contrast mode">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18z" fill="currentColor" stroke="none"/></svg>
+        Contrast
+      </button>
+    </div>
+
+    <main class="content" id="main-content">
+
+      <!-- OVERVIEW -->
+      <section class="panel" id="panel-overview" data-panel="overview" role="tabpanel" aria-labelledby="nav-overview" tabindex="-1">
+        <div class="page-head">
+          <span class="kicker">Home</span>
+          <h1>Your PAFL Portfolio</h1>
+          <p>Everything from the printed template — goals, plans, measurements, evidence, reflections — lives here in one place. Fill it in over the semester; it saves on this device as you go.</p>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="field" style="margin-bottom:0; max-width:360px;">
+            <label for="student-name">Your name</label>
+            <span class="hint">Added to your exported files so it's clear whose portfolio this is.</span>
+            <input type="text" id="student-name" data-bind="meta.studentName" placeholder="First and last name">
+          </div>
+        </div>
+
+        <div class="stat-row" id="stat-row"></div>
+
+        <div class="card" style="margin-bottom:16px;">
+          <h2 class="section-title">Section progress</h2>
+          <p class="section-help">Jump back into any part — nothing has to be done in order.</p>
+          <div id="part-progress"></div>
+        </div>
+
+        <div class="grid-2 no-print">
+          <div class="card">
+            <h2 class="section-title">Save your work</h2>
+            <p class="section-help">Your entries live in this browser. Export a backup file regularly — especially before switching computers — and re-import it to pick up where you left off.</p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" id="btn-export-json" type="button">Export backup (.json)</button>
+              <button class="btn btn-ghost btn-sm" id="btn-import-json" type="button">Import backup</button>
+              <input type="file" accept=".json,.txt,application/json,text/plain" id="file-import" class="visually-hidden" aria-hidden="true">
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="section-title">Ready to submit?</h2>
+            <p class="section-help">Export a formatted PDF of your whole portfolio — this is the file to upload to Canvas. Re-export any time; it always reflects your latest entries.</p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-primary btn-sm" id="btn-export-pdf" type="button">Export PDF for Canvas</button>
+              <button class="btn btn-ghost btn-sm" id="btn-export-summary" type="button">Export as plain text (.md)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GOALS -->
+      <section class="panel" id="panel-goals" data-panel="goals" role="tabpanel" aria-labelledby="nav-goals" tabindex="-1">
+        <div class="page-head">
+          <span class="kicker">Part 1</span>
+          <h1>Goal Setting</h1>
+          <p>Set one <strong>Fitness Goal</strong> (worked on in the Fitness Centre) and one <strong>Skills Goal</strong> (your physical activity, in the Sports Hall or beyond). Walk through S–M–A–R–T for each — the sentence at the bottom builds itself from your answers.</p>
+        </div>
+        <div class="field" style="max-width:60ch; margin-bottom:20px;">
+          <label for="goal-why">Why did you choose these goals? What's important to you about them?</label>
+          <textarea id="goal-why" data-bind="goals.why"></textarea>
+        </div>
+        <div class="stack">
+          <div class="card fitness" id="goal-fitness-card"></div>
+          <div class="card skill" id="goal-skill-card"></div>
+        </div>
+      </section>
+
+      <!-- PLANNING -->
+      <section class="panel" id="panel-planning" data-panel="planning" role="tabpanel" aria-labelledby="nav-planning" tabindex="-1">
+        <div class="page-head">
+          <span class="kicker">Part 2</span>
+          <h1>Planning</h1>
+          <p>Show how your research became a real plan, and how it connects back to your goals and to the Components of Fitness.</p>
+        </div>
+        <div class="stack">
+          <div class="card" id="research-fitness-card">
+            <h2 class="section-title">Research: your fitness training</h2>
+            <p class="section-help">Which components of fitness matter for your activity? Tick every one that applies.</p>
+            <div class="chip-grid" id="components-picker" role="group" aria-label="Components of fitness"></div>
+            <div class="grid-2" style="margin-top:14px;">
+              <div class="field"><label for="pl-program">Program / site or source name</label><input type="text" id="pl-program" data-bind="planning.programName"></div>
+              <div class="field"><label for="pl-credible">Why is this a good, trustworthy source?</label><input type="text" id="pl-credible" data-bind="planning.credibility"></div>
+            </div>
+            <div class="field"><label for="pl-why">Why did you choose this site?</label><textarea id="pl-why" data-bind="planning.whyChosen"></textarea></div>
+            <div class="field">
+              <label>Exercises to include in your workouts</label>
+              <span class="hint">List up to 6, in the order you'll do them.</span>
+              <div class="row-list" id="exercise-list"></div>
+              <button class="btn btn-ghost btn-sm" id="btn-add-exercise" type="button" style="margin-top:8px;">+ Add exercise</button>
+            </div>
+          </div>
+
+          <div class="card" id="research-skill-card">
+            <h2 class="section-title">Research: deconstruct your skill</h2>
+            <p class="section-help">Break your physical activity down into its component sub-skills.</p>
+            <div class="grid-2">
+              <div class="field"><label for="pl-v1">Expert video 1 (link)</label><input type="url" id="pl-v1" data-bind="planning.video1" placeholder="https://"></div>
+              <div class="field"><label for="pl-v2">Expert video 2 (link)</label><input type="url" id="pl-v2" data-bind="planning.video2" placeholder="https://"></div>
+            </div>
+            <div class="field"><label for="pl-parts">Based on the videos, what are the component parts of the activity?</label><textarea id="pl-parts" data-bind="planning.componentParts"></textarea></div>
+            <div class="field">
+              <label>Sub-skills &amp; what you learned about each</label>
+              <div class="row-list" id="subskill-list"></div>
+              <button class="btn btn-ghost btn-sm" id="btn-add-subskill" type="button" style="margin-top:8px;">+ Add sub-skill</button>
+            </div>
+            <div class="field">
+              <label for="pl-develop">Which 2 sub-skills do you want to develop?</label>
+              <input type="text" id="pl-develop" data-bind="planning.subSkillsToDevelop" placeholder="e.g. Overhead pass, footwork on approach">
+            </div>
+          </div>
+
+          <div class="card" id="plan-print-card">
+            <h2 class="section-title">Training &amp; Practice Plans</h2>
+            <p class="section-help">Build one ongoing plan for each goal, then keep improving it as the semester goes — update sets, reps, weight, or duration as you get stronger or more skilled. Every change you make is tracked below so you (and Adam) can see how your plan evolved.</p>
+
+            <div class="track-head fitness"><span class="swatch" aria-hidden="true"></span><h3 class="section-title" style="margin:0; font-size:.95rem;">Fitness Plan</h3></div>
+            <div class="field"><label for="fp-overview">Plan overview</label><span class="hint">How this plan builds toward your Fitness Goal.</span><textarea id="fp-overview" data-bind="planning.fitnessPlan.overview"></textarea></div>
+            <div id="fitness-plan-items"></div>
+            <button class="btn btn-ghost btn-sm" id="btn-add-fitness-item" type="button" style="margin:8px 0 12px;">+ Add exercise</button>
+            <div class="field" style="margin-bottom:22px;">
+              <label>Change history</label><span class="hint">Every edit to this plan — added, changed, or removed — shows up here with a date, automatically.</span>
+              <div class="history-list" id="fitness-plan-history"></div>
+            </div>
+
+            <div class="track-head skill"><span class="swatch" aria-hidden="true"></span><h3 class="section-title" style="margin:0; font-size:.95rem;">Skills Plan</h3></div>
+            <div class="field"><label for="sp-overview">Plan overview</label><span class="hint">How this plan builds toward your Skills Goal.</span><textarea id="sp-overview" data-bind="planning.skillsPlan.overview"></textarea></div>
+            <div id="skills-plan-items"></div>
+            <button class="btn btn-ghost btn-sm" id="btn-add-skills-item" type="button" style="margin:8px 0 12px;">+ Add drill</button>
+            <div class="field">
+              <label>Change history</label><span class="hint">Every edit to this plan — added, changed, or removed — shows up here with a date, automatically.</span>
+              <div class="history-list" id="skills-plan-history"></div>
+            </div>
+
+            <div class="grid-2" style="margin-top:20px;">
+              <div class="field"><label for="pl-fplan">Fitness Plan link (optional)</label><input type="url" id="pl-fplan" data-bind="planning.fitnessPlanLink" placeholder="https://"></div>
+              <div class="field"><label for="pl-splan">Skills Plan link (optional)</label><input type="url" id="pl-splan" data-bind="planning.skillsPlanLink" placeholder="https://"></div>
+            </div>
+
+            <button class="btn btn-primary btn-sm" id="btn-export-plan-pdf" type="button" style="margin-top:18px;">Export plan for printing (PDF)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACTION -->
+      <section class="panel" id="panel-action" data-panel="action" role="tabpanel" aria-labelledby="nav-action" tabindex="-1">
+        <div class="page-head">
+          <span class="kicker">Part 3</span>
+          <h1>Action</h1>
+          <p>Put the plan into motion. Log the days you train, track your measurements, and collect evidence.</p>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h2 class="section-title">Training log</h2>
+            <p class="section-help">Log each session — which goal it worked toward. The strip below shows your last 28 days.</p>
+            <div class="heatstrip" id="heatstrip"></div>
+            <div class="legend">
+              <span><span class="sw" style="background:var(--track-fitness)"></span>Fitness</span>
+              <span><span class="sw" style="background:var(--track-skill)"></span>Skill</span>
+              <span><span class="sw" style="background:linear-gradient(135deg,var(--track-fitness) 50%,var(--track-skill) 50%)"></span>Both</span>
+              <span><span class="sw" style="background:var(--border)"></span>No session</span>
+            </div>
+            <div class="grid-2" style="margin-top:14px; align-items:end;">
+              <div class="field"><label for="log-date">Date</label><input type="date" id="log-date"></div>
+              <div class="field"><label for="log-goal">Worked on</label>
+                <select id="log-goal"><option value="fitness">Fitness goal</option><option value="skill">Skill goal</option><option value="both">Both</option></select>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btn-add-log" type="button">+ Log session</button>
+            <div class="row-list" id="log-list" style="margin-top:12px;"></div>
+          </div>
+
+          <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:4px;">
+              <h2 class="section-title" style="margin-bottom:0;">Your plan</h2>
+              <button class="btn btn-ghost btn-sm" id="btn-action-goto-planning" type="button">Edit in Planning</button>
+            </div>
+            <p class="section-help">A quick look at the Fitness and Skills plans you built in Planning — handy to check while you log a session.</p>
+            <div id="action-plan-reference"></div>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">Measurements</h2>
+            <p class="section-help">e.g. sit &amp; reach, plank hold, 5&nbsp;km time, free throws out of 10, vertical jump.</p>
+            <div style="overflow-x:auto;">
+              <table class="meas-table" id="meas-table">
+                <thead><tr><th>Measure</th><th>Pre</th><th>Mid</th><th>Final</th><th>Trend</th><th></th></tr></thead>
+                <tbody id="meas-body"></tbody>
+              </table>
+            </div>
+            <button class="btn btn-ghost btn-sm" id="btn-add-meas" type="button" style="margin-top:10px;">+ Add measurement</button>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">My evidence</h2>
+            <p class="section-help">Photos, videos, links, or short notes that show your work. Add a short description for each — it makes your evidence usable for everyone, screen-reader users included.</p>
+            <div class="row-list" id="evidence-list"></div>
+            <button class="btn btn-ghost btn-sm" id="btn-add-evidence" type="button" style="margin-top:8px;">+ Add evidence</button>
+          </div>
+
+          <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:4px;">
+              <h2 class="section-title" style="margin-bottom:0;">Mid-unit reflections</h2>
+              <span class="chip chip-muted" id="midref-count-chip"></span>
+            </div>
+            <p class="section-help">Check in on how it's going partway through the unit. Add a dated entry each time you reflect — you need at least <strong>2</strong>.</p>
+            <div class="row-list" id="midref-list"></div>
+            <button class="btn btn-ghost btn-sm" id="btn-add-midref" type="button" style="margin-top:8px;">+ Add reflection</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- REFLECTION -->
+      <section class="panel" id="panel-reflection" data-panel="reflection" role="tabpanel" aria-labelledby="nav-reflection" tabindex="-1">
+        <div class="page-head">
+          <span class="kicker">Part 4</span>
+          <h1>Reflections on Growth</h1>
+          <p>Look back at the whole portfolio and describe how you grew — this is where the evidence you collected turns into a story.</p>
+        </div>
+        <div class="stack">
+          <div class="card" id="progress-summary-card">
+            <h2 class="section-title">Progress on your goals</h2>
+            <div id="progress-summary"></div>
+          </div>
+          <div class="card">
+            <h2 class="section-title">Reflection questions</h2>
+            <div class="field"><label for="ref-growth">What evidence shows you've grown since you started?</label><textarea id="ref-growth" data-bind="reflection.growthEvidence"></textarea></div>
+            <div class="field"><label for="ref-challenge">What got in the way, and how did you handle it?</label><textarea id="ref-challenge" data-bind="reflection.challenges"></textarea></div>
+            <div class="field"><label for="ref-changed">What would you do differently if you started again?</label><textarea id="ref-changed" data-bind="reflection.changed"></textarea></div>
+            <div class="field"><label for="ref-next">What's next for you as a physically active person?</label><textarea id="ref-next" data-bind="reflection.nextSteps"></textarea></div>
+          </div>
+          <div class="card">
+            <h2 class="section-title">Before you submit</h2>
+            <div id="todo-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- REFERENCE -->
+      <section class="panel" id="panel-reference" data-panel="reference" role="tabpanel" aria-labelledby="nav-reference" tabindex="-1">
+        <div class="page-head">
+          <span class="kicker">Look up</span>
+          <h1>Reference</h1>
+          <p>Background you'll want while you plan and reflect — no need to fill anything in here.</p>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h2 class="section-title">Physical literacy</h2>
+            <div class="callout">
+              <p class="quote-block">"Individuals who are physically literate move with competence and confidence in a wide variety of physical activities in multiple environments that benefit the development of the whole person."</p>
+              <span class="cite">Physical and Health Education Canada, <em>What is Physical Literacy</em> (2017)</span>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="section-title">Components of fitness</h2>
+            <div class="grid-2">
+              <div>
+                <span class="chip chip-fitness" style="margin-bottom:10px;">Health-related</span>
+                <dl class="glossary">
+                  <dt>Cardiorespiratory endurance</dt><dd>Your heart and lungs' ability to fuel activity over time.</dd>
+                  <dt>Muscular strength</dt><dd>The most force a muscle can produce in one effort.</dd>
+                  <dt>Muscular endurance</dt><dd>How long a muscle can keep working without tiring.</dd>
+                  <dt>Flexibility</dt><dd>The range of motion available at a joint.</dd>
+                  <dt>Body composition</dt><dd>The relative makeup of the body — not a target number, a training variable.</dd>
+                </dl>
+              </div>
+              <div>
+                <span class="chip chip-skill" style="margin-bottom:10px;">Skill-related</span>
+                <dl class="glossary">
+                  <dt>Agility</dt><dd>Changing direction quickly while staying in control.</dd>
+                  <dt>Balance</dt><dd>Keeping your centre of gravity over your base of support.</dd>
+                  <dt>Coordination</dt><dd>Using senses and body parts together smoothly.</dd>
+                  <dt>Power</dt><dd>Strength applied quickly — force over time.</dd>
+                  <dt>Reaction time</dt><dd>How fast you respond once a signal appears.</dd>
+                  <dt>Speed</dt><dd>How fast you can move from one point to another.</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h2 class="section-title">What's next?</h2>
+            <p class="section-help">Once this portfolio is done: keep the habit going. Revisit your SMART goals next semester, and reuse whichever sub-skills you didn't get to.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-import">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-import-title">
+    <h2 id="modal-import-title">Replace current entries?</h2>
+    <p>Importing a backup file will overwrite everything currently in this portfolio on this device.</p>
+    <div class="row">
+      <button class="btn btn-ghost btn-sm" id="modal-import-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="modal-import-confirm" type="button">Replace</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-fallback">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-fallback-title" style="max-width:640px;">
+    <h2 id="modal-fallback-title">Your file</h2>
+    <div id="fallback-body"></div>
+    <div class="row">
+      <button class="btn btn-ghost btn-sm" id="modal-fallback-close" type="button">Close</button>
+      <button class="btn btn-ghost btn-sm" id="modal-fallback-primary" type="button" hidden>Continue</button>
+      <button class="btn btn-primary btn-sm" id="modal-fallback-secondary" type="button" hidden>Copy as text instead</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* Standalone-hosting shim: gives the export buttons real browser downloads when not running inside Claude. */
+if(!window.claude){
+  window.claude = { use: function(name){
+    if(name !== "downloads") return Promise.reject(new Error("unavailable"));
+    return Promise.resolve({ save: function(o){
+      var blob = o.data instanceof Blob ? o.data : new Blob([o.data], {type: /\.json$/.test(o.filename) ? "application/json" : "text/plain;charset=utf-8"});
+      var url = URL.createObjectURL(blob), a = document.createElement("a");
+      a.href = url; a.download = o.filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      return Promise.resolve();
+    }});
+  }};
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ============ Data ============ */
+  var SECTIONS = [
+    {id:"overview", label:"Overview", icon:'<path d="M4 13h6V4H4v9zM14 20h6v-9h-6v9zM4 20h6v-4H4v4zM14 4v4h6V4h-6z"/>'},
+    {id:"goals", label:"Goal Setting", icon:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor"/>'},
+    {id:"planning", label:"Planning", icon:'<path d="M4 6h16M4 12h16M4 18h10"/>'},
+    {id:"action", label:"Action", icon:'<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/>'},
+    {id:"reflection", label:"Reflection", icon:'<path d="M12 20c4-3 8-6.5 8-11a5 5 0 00-9-3 5 5 0 00-9 3c0 4.5 4 8 8 11z"/>'},
+    {id:"reference", label:"Reference", icon:'<circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 11h1v5h1"/>'}
+  ];
+
+  var COMPONENTS = ["Cardiorespiratory endurance","Muscular strength","Muscular endurance","Flexibility","Body composition","Agility","Balance","Coordination","Power","Reaction time","Speed"];
+  // Body composition is excluded from the Fitness Goal picker specifically (students
+  // shouldn't be set up to frame a personal goal around it) -- it stays in the general
+  // Planning research picker and the Reference glossary, where it's informational.
+  var GOAL_FITNESS_COMPONENTS = COMPONENTS.filter(function(c){ return c !== "Body composition"; });
+
+  var SMART_FIELDS = [
+    {key:"s", letter:"S", label:"Specific", help:"What do you want to accomplish, and why? Who's involved, where, and what does it require?"},
+    {key:"m", letter:"M", label:"Measurable", help:"How much, how many, how will you know it's done? Which fitness test(s) will you use?"},
+    {key:"a", letter:"A", label:"Attainable", help:"What can you do now — how does this goal stretch you beyond that?"},
+    {key:"r", letter:"R", label:"Relevant", help:"Does this goal mean something to you? How realistic is it, and how will it actually get accomplished?"},
+    {key:"t", letter:"T", label:"Time-bound", help:"How long will this take? Give a real date."}
+  ];
+
+  var TODOS = [
+    {key:"measurements", label:"Update your measurements and add your evidence"},
+    {key:"corrections", label:"Check for corrections on all Canvas portfolio assignments and your slides"},
+    {key:"feedback", label:"Use feedback you've received to make corrections"},
+    {key:"reflections", label:"Complete every reflection question"},
+    {key:"personalize", label:"Personalise your portfolio — photos, videos, images that are yours"}
+  ];
+
+  var PDF_MARGIN = 54, PDF_PAGE_W = 612, PDF_PAGE_H = 792, PDF_CONTENT_W = PDF_PAGE_W - PDF_MARGIN*2;
+  var PDF_NAVY = [15,44,82], PDF_CRIMSON = [158,27,50], PDF_GOLD = [201,154,62],
+      PDF_SKYBLUE = [47,102,144], PDF_TEXT = [38,52,74], PDF_MUTED = [92,107,132], PDF_LINE = [221,226,234];
+
+  /* Hex versions of the same brand palette, for the rich-HTML copy/paste
+     fallback (so what a student pastes into a Google Doc/Canvas keeps the
+     dashboard's own look instead of being a flat text dump). */
+  var HTML_NAVY = "#0F2C52", HTML_CRIMSON = "#9E1B32", HTML_GOLD = "#C99A3E", HTML_GOLD_SOFT = "#FAC775",
+      HTML_SKYBLUE = "#2F6690", HTML_TEXT = "#26344A", HTML_MUTED = "#5C6B84", HTML_LINE = "#DDE2EA", HTML_BG = "#F4F6FA";
+
+  function emptyState(){
+    return {
+      meta:{studentName:""},
+      goals:{why:"",
+        fitness:{s:"",m:"",a:"",r:"",t:"",ownWords:"",components:[]},
+        skill:{s:"",m:"",a:"",r:"",t:"",ownWords:""}
+      },
+      planning:{components:[],programName:"",credibility:"",whyChosen:"",exercises:[],
+        video1:"",video2:"",componentParts:"",subSkills:[],subSkillsToDevelop:"",
+        fitnessPlanLink:"",skillsPlanLink:"",
+        fitnessPlan:{overview:"",items:[],history:[]},
+        skillsPlan:{overview:"",items:[],history:[]}},
+      action:{log:[],measurements:[],evidence:[],midReflections:[]},
+      reflection:{growthEvidence:"",challenges:"",changed:"",nextSteps:"",todos:{}},
+      prefs:{textSize:"normal",contrast:"normal"}
+    };
+  }
+
+  var STORE_KEY = "pafl-portfolio-v1";
+  var state = loadState();
+  var activeSection = "overview";
+  var saveTimer = null;
+
+  var HISTORY_CAP = 300;
+  var idSeq = 0;
+  function newId(){ return "i" + Date.now().toString(36) + (idSeq++).toString(36); }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return emptyState();
+      var parsed = migrateLegacyMidReflection(migrateLegacyPlanning(JSON.parse(raw)));
+      return normalizeState(deepMerge(emptyState(), parsed));
+    }catch(e){ return emptyState(); }
+  }
+  // Older versions of this dashboard organized each plan into day-by-day
+  // "sessions" (each with its own exercise list). The plan is now ONE
+  // ongoing, flat list of items per track that students keep improving —
+  // this flattens any old session-shaped data (from localStorage or an
+  // imported backup file) into that list before anything else touches it,
+  // so nobody's earlier work disappears when they open the updated page.
+  function migrateLegacyPlanning(parsed){
+    if(!parsed || !parsed.planning) return parsed;
+    ["fitnessPlan","skillsPlan"].forEach(function(key){
+      var plan = parsed.planning[key];
+      if(!plan || !Array.isArray(plan.sessions) || Array.isArray(plan.items)) return;
+      var items = [];
+      plan.sessions.forEach(function(s){
+        var exs = (s && s.exercises) || [];
+        if(exs.length){
+          exs.forEach(function(ex){
+            items.push({
+              name: (ex && ex.name) || "", day: (s && s.day) || "",
+              sets: (ex && ex.sets) || "", reps: (ex && ex.reps) || "", weight: (ex && ex.weight) || "",
+              detail: (ex && ex.detail) || "", notes: (ex && ex.notes) || ""
+            });
+          });
+        } else if(s && (s.activity || s.detail || s.notes)){
+          items.push({name: s.activity || "", day: (s && s.day) || "", sets:"", reps:"", weight:"", detail: s.detail || "", notes: s.notes || ""});
+        }
+      });
+      plan.items = items;
+      plan.history = items.length ? [{ts: Date.now(), type:"migrated"}] : [];
+      delete plan.sessions;
+    });
+    return parsed;
+  }
+  // Older versions of this dashboard had a single free-text "Mid-point
+  // reflection" box. It's now a dated, repeatable list (students need at
+  // least 2 entries) -- carry any existing text over as the first entry.
+  function migrateLegacyMidReflection(parsed){
+    if(!parsed || !parsed.action) return parsed;
+    var a = parsed.action;
+    if(typeof a.midReflection === "string" && a.midReflection.trim() && !Array.isArray(a.midReflections)){
+      a.midReflections = [{id: newId(), date: "", text: a.midReflection}];
+    }
+    delete a.midReflection;
+    return parsed;
+  }
+  function normalizePlanItem(it){
+    return {
+      id: (it && it.id) || newId(),
+      name: (it && it.name) || "", day: (it && it.day) || "",
+      sets: (it && it.sets) || "", reps: (it && it.reps) || "", weight: (it && it.weight) || "",
+      detail: (it && it.detail) || "", notes: (it && it.notes) || ""
+    };
+  }
+  function normalizePlan(plan){
+    plan = plan || {};
+    var items = Array.isArray(plan.items) ? plan.items.map(normalizePlanItem) : [];
+    var history = Array.isArray(plan.history) ? plan.history.slice(-HISTORY_CAP) : [];
+    return {overview: plan.overview || "", items: items, history: history};
+  }
+  function normalizeState(s){
+    s.planning.fitnessPlan = normalizePlan(s.planning.fitnessPlan);
+    s.planning.skillsPlan = normalizePlan(s.planning.skillsPlan);
+    // Body composition was briefly selectable as a Fitness Goal component before being
+    // removed from that picker -- strip it from any state saved during that window.
+    if(Array.isArray(s.goals.fitness.components)){
+      s.goals.fitness.components = s.goals.fitness.components.filter(function(c){ return c !== "Body composition"; });
+    }
+    s.action.midReflections = (Array.isArray(s.action.midReflections) ? s.action.midReflections : []).map(function(r){
+      return {id: (r && r.id) || newId(), date: (r && r.date) || "", text: (r && r.text) || ""};
+    });
+    return s;
+  }
+  function deepMerge(base, extra){
+    if(typeof extra !== "object" || extra === null) return base;
+    Object.keys(base).forEach(function(k){
+      if(extra[k] === undefined) return;
+      if(Array.isArray(base[k])){ base[k] = Array.isArray(extra[k]) ? extra[k] : base[k]; }
+      else if(typeof base[k] === "object" && base[k] !== null){ base[k] = deepMerge(base[k], extra[k]); }
+      else { base[k] = extra[k]; }
+    });
+    return base;
+  }
+  function scheduleSave(){
+    setSaveText("Saving…");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      try{
+        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+        setSaveText("Saved on this device · " + new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+      }catch(e){
+        setSaveText("Couldn't save — storage may be full");
+      }
+      renderOverview();
+    }, 450);
+  }
+  function setSaveText(t){ var el = document.getElementById("save-text"); if(el) el.textContent = t; }
+
+  function getPath(obj, path){
+    return path.split(".").reduce(function(o,k){ return (o||{})[k]; }, obj);
+  }
+  function setPath(obj, path, value){
+    var parts = path.split(".");
+    var cur = obj;
+    for(var i=0;i<parts.length-1;i++){ cur = cur[parts[i]]; }
+    cur[parts[parts.length-1]] = value;
+  }
+
+  /* ============ Nav ============ */
+  function buildNav(){
+    var ul = document.getElementById("navlist");
+    ul.innerHTML = SECTIONS.map(function(s){
+      return '<li><button class="navbtn" role="tab" id="nav-'+s.id+'" data-section="'+s.id+'" aria-selected="false" aria-controls="panel-'+s.id+'">'+
+        '<span class="dot" aria-hidden="true"></span><span>'+s.label+'</span><span class="pct mono" id="navpct-'+s.id+'"></span></button></li>';
+    }).join("");
+    ul.querySelectorAll(".navbtn").forEach(function(btn){
+      btn.addEventListener("click", function(){ showSection(btn.dataset.section); });
+    });
+  }
+  function showSection(id){
+    activeSection = id;
+    document.querySelectorAll(".panel").forEach(function(p){ p.classList.toggle("is-active", p.dataset.panel === id); });
+    document.querySelectorAll(".navbtn").forEach(function(b){ b.setAttribute("aria-selected", String(b.dataset.section === id)); });
+    var panel = document.getElementById("panel-"+id);
+    if(panel){ panel.focus({preventScroll:true}); window.scrollTo({top:0, behavior:"auto"}); }
+    if(id === "overview") renderOverview();
+    if(id === "reflection") renderProgressSummary();
+    if(id === "action") renderActionPlanReference();
+  }
+
+  /* ============ Bind plain fields (inputs/textareas with data-bind) ============ */
+  function bindSimpleFields(){
+    document.querySelectorAll("[data-bind]").forEach(function(el){
+      var path = el.dataset.bind;
+      var val = getPath(state, path);
+      if(val !== undefined) el.value = val;
+      el.addEventListener("input", function(){
+        setPath(state, path, el.value);
+        scheduleSave();
+      });
+    });
+  }
+
+  /* ============ Image helpers ============ */
+  function downscaleImage(file, maxDim, quality){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          var w = img.naturalWidth, h = img.naturalHeight;
+          var scale = Math.min(1, maxDim / Math.max(w, h));
+          var cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+          var canvas = document.createElement("canvas");
+          canvas.width = cw; canvas.height = ch;
+          var ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, cw, ch);
+          resolve({dataUrl: canvas.toDataURL("image/jpeg", quality), width: cw, height: ch});
+        };
+        img.onerror = function(){ reject(new Error("Couldn't read that image")); };
+        img.src = reader.result;
+      };
+      reader.onerror = function(){ reject(new Error("Couldn't read that file")); };
+      reader.readAsDataURL(file);
+    });
+  }
+  /* ============ Goals ============ */
+  function renderGoalCard(kind){
+    var data = state.goals[kind];
+    var trackClass = kind === "fitness" ? "fitness" : "skill";
+    var title = kind === "fitness" ? "Fitness Goal" : "Skills Goal";
+    var chip = kind === "fitness" ? '<span class="chip chip-fitness">Fitness Centre</span>' : '<span class="chip chip-skill">Sports Hall &amp; beyond</span>';
+    var html = '<div class="track-head '+trackClass+'"><span class="swatch" aria-hidden="true"></span><h2 class="section-title" style="margin:0;">'+title+'</h2>'+chip+'</div>';
+    if(kind === "fitness"){
+      html += '<div class="field">'+
+          '<label>Which component(s) of fitness will this goal focus on?</label>'+
+          '<span class="hint">Tick every one that applies — this connects your goal to what you research and plan in Part 2.</span>'+
+          '<div id="fitness-goal-components-picker"></div>'+
+        '</div>';
+    }
+    SMART_FIELDS.forEach(function(f){
+      html += '<div class="smart-row '+trackClass+'">'+
+        '<div class="smart-letter">'+f.letter+'</div>'+
+        '<div class="field" style="margin-bottom:0;">'+
+          '<label for="'+kind+'-'+f.key+'">'+f.label+'</label>'+
+          '<span class="hint">'+f.help+'</span>'+
+          '<textarea id="'+kind+'-'+f.key+'" data-goal="'+kind+'" data-key="'+f.key+'">'+escapeHtml(data[f.key])+'</textarea>'+
+        '</div></div>';
+    });
+    html += '<div class="field"><label>Goal statement</label><div class="statement" id="'+kind+'-statement"></div></div>';
+    html += '<div class="field">'+
+        '<label for="'+kind+'-ownwords">And now, formulate your goal in your own words</label>'+
+        '<span class="hint">Use the statement above as a starting point, but put it in language that actually sounds like you.</span>'+
+        '<textarea id="'+kind+'-ownwords" data-goal-ownwords="'+kind+'">'+escapeHtml(data.ownWords)+'</textarea>'+
+      '</div>';
+    document.getElementById("goal-"+kind+"-card").innerHTML = html;
+    document.querySelectorAll('textarea[data-goal="'+kind+'"]').forEach(function(ta){
+      ta.addEventListener("input", function(){
+        state.goals[kind][ta.dataset.key] = ta.value;
+        scheduleSave();
+        renderGoalStatement(kind);
+      });
+    });
+    document.querySelectorAll('textarea[data-goal-ownwords="'+kind+'"]').forEach(function(ta){
+      ta.addEventListener("input", function(){
+        state.goals[kind].ownWords = ta.value;
+        scheduleSave();
+      });
+    });
+    if(kind === "fitness") renderFitnessGoalComponents();
+    renderGoalStatement(kind);
+  }
+  function renderFitnessGoalComponents(){
+    var wrap = document.getElementById("fitness-goal-components-picker");
+    if(!wrap) return;
+    wrap.innerHTML = GOAL_FITNESS_COMPONENTS.map(function(c){
+      var on = state.goals.fitness.components.indexOf(c) > -1;
+      return '<button type="button" class="chip '+(on ? "chip-fitness" : "chip-muted")+'" data-goalcomp="'+c+'" aria-pressed="'+on+'" style="margin:0 6px 6px 0; cursor:pointer; border:1px solid var(--border);">'+c+'</button>';
+    }).join("");
+    wrap.querySelectorAll("[data-goalcomp]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var c = b.dataset.goalcomp;
+        var i = state.goals.fitness.components.indexOf(c);
+        if(i > -1) state.goals.fitness.components.splice(i,1); else state.goals.fitness.components.push(c);
+        scheduleSave();
+        renderFitnessGoalComponents();
+      });
+    });
+  }
+  function renderGoalStatement(kind){
+    var d = state.goals[kind];
+    var el = document.getElementById(kind+"-statement");
+    if(d.s || d.m || d.t){
+      var parts = [];
+      if(d.s) parts.push(d.s.replace(/\.$/,""));
+      if(d.m) parts.push("measured by " + d.m.replace(/\.$/,"").toLowerCase());
+      if(d.t) parts.push("by " + d.t.replace(/\.$/,""));
+      el.innerHTML = parts.join(", ") + ".";
+    } else {
+      el.innerHTML = "<em>Fill in Specific, Measurable and Time-bound to see your goal statement build itself here.</em>";
+    }
+  }
+  function renderGoals(){ renderGoalCard("fitness"); renderGoalCard("skill"); }
+
+  /* ============ Planning ============ */
+  function renderComponents(){
+    var wrap = document.getElementById("components-picker");
+    wrap.innerHTML = COMPONENTS.map(function(c){
+      var on = state.planning.components.indexOf(c) > -1;
+      return '<button type="button" class="chip '+(on ? "chip-fitness" : "chip-muted")+'" data-comp="'+c+'" aria-pressed="'+on+'" style="margin:0 6px 6px 0; cursor:pointer; border:1px solid var(--border);">'+c+'</button>';
+    }).join("");
+    wrap.querySelectorAll("[data-comp]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var c = b.dataset.comp;
+        var i = state.planning.components.indexOf(c);
+        if(i > -1) state.planning.components.splice(i,1); else state.planning.components.push(c);
+        scheduleSave();
+        renderComponents();
+      });
+    });
+  }
+  function renderExercises(){
+    var list = document.getElementById("exercise-list");
+    if(state.planning.exercises.length === 0){
+      list.innerHTML = '<p class="section-help" style="margin:0;">No exercises added yet.</p>';
+    } else {
+      list.innerHTML = state.planning.exercises.map(function(ex, i){
+        return '<div class="row-item"><div class="row-item-head"><span class="idx">'+(i+1)+'</span>'+
+          '<button class="btn btn-danger-ghost btn-sm" data-remove-ex="'+i+'" type="button">Remove</button></div>'+
+          '<input type="text" data-ex="'+i+'" value="'+escapeAttr(ex)+'" placeholder="Exercise name" aria-label="Exercise '+(i+1)+'"></div>';
+      }).join("");
+    }
+    list.querySelectorAll("[data-ex]").forEach(function(inp){
+      inp.addEventListener("input", function(){ state.planning.exercises[+inp.dataset.ex] = inp.value; scheduleSave(); });
+      inp.addEventListener("change", function(){
+        syncPlanFromResearch("fitnessPlan");
+        scheduleSave();
+        renderPlanItems("fitnessPlan");
+        renderPlanHistory("fitnessPlan");
+      });
+    });
+    list.querySelectorAll("[data-remove-ex]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var removedName = state.planning.exercises[+b.dataset.removeEx];
+        state.planning.exercises.splice(+b.dataset.removeEx,1);
+        pruneItemForRemovedName("fitnessPlan", removedName);
+        scheduleSave();
+        renderExercises();
+        renderPlanItems("fitnessPlan");
+      });
+    });
+    document.getElementById("btn-add-exercise").disabled = state.planning.exercises.length >= 6;
+  }
+  function renderSubSkills(){
+    var list = document.getElementById("subskill-list");
+    if(state.planning.subSkills.length === 0){
+      list.innerHTML = '<p class="section-help" style="margin:0;">No sub-skills added yet.</p>';
+    } else {
+      list.innerHTML = state.planning.subSkills.map(function(s, i){
+        return '<div class="row-item"><div class="row-item-head"><span class="idx">Sub-skill '+(i+1)+'</span>'+
+          '<button class="btn btn-danger-ghost btn-sm" data-remove-ss="'+i+'" type="button">Remove</button></div>'+
+          '<div class="field" style="margin-bottom:8px;"><label>Sub-skill name</label><input type="text" data-ss-name="'+i+'" value="'+escapeAttr(s.name)+'"></div>'+
+          '<div class="field" style="margin-bottom:0;"><label>What did you learn?</label><textarea data-ss-learn="'+i+'">'+escapeHtml(s.learnings)+'</textarea></div></div>';
+      }).join("");
+    }
+    list.querySelectorAll("[data-ss-name]").forEach(function(inp){
+      inp.addEventListener("input", function(){ state.planning.subSkills[+inp.dataset.ssName].name = inp.value; scheduleSave(); });
+      inp.addEventListener("change", function(){
+        syncPlanFromResearch("skillsPlan");
+        scheduleSave();
+        renderPlanItems("skillsPlan");
+        renderPlanHistory("skillsPlan");
+      });
+    });
+    list.querySelectorAll("[data-ss-learn]").forEach(function(ta){
+      ta.addEventListener("input", function(){ state.planning.subSkills[+ta.dataset.ssLearn].learnings = ta.value; scheduleSave(); });
+    });
+    list.querySelectorAll("[data-remove-ss]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var removedName = state.planning.subSkills[+b.dataset.removeSs] && state.planning.subSkills[+b.dataset.removeSs].name;
+        state.planning.subSkills.splice(+b.dataset.removeSs,1);
+        pruneItemForRemovedName("skillsPlan", removedName);
+        scheduleSave();
+        renderSubSkills();
+        renderPlanItems("skillsPlan");
+      });
+    });
+  }
+  function planItemLabel(trackKey){ return trackKey === "fitnessPlan" ? "Exercise" : "Drill"; }
+  function planExtraFields(trackKey){
+    return trackKey === "fitnessPlan"
+      ? [{key:"day", label:"Day(s)", placeholder:"e.g. Mon/Wed"}, {key:"sets", label:"Sets", placeholder:"e.g. 3"}, {key:"reps", label:"Reps", placeholder:"e.g. 12"}, {key:"weight", label:"Weight", placeholder:"e.g. 20kg"}]
+      : [{key:"day", label:"Day(s)", placeholder:"e.g. Tue/Thu"}, {key:"detail", label:"Duration", placeholder:"e.g. 20 min"}];
+  }
+  function planFieldLabel(trackKey, key){
+    if(key === "notes") return "Notes";
+    if(key === "name") return planItemLabel(trackKey) + " name";
+    var f = planExtraFields(trackKey).filter(function(x){ return x.key === key; })[0];
+    return f ? f.label : key;
+  }
+  function planQuickAddSource(trackKey){
+    return trackKey === "fitnessPlan"
+      ? state.planning.exercises.filter(Boolean)
+      : state.planning.subSkills.map(function(s){ return s.name; }).filter(Boolean);
+  }
+  function emptyPlanItem(name){ return {id:newId(), name: name || "", day:"", sets:"", reps:"", weight:"", detail:"", notes:""}; }
+  function planItemSnapshot(trackKey, it){
+    var parts = planExtraFields(trackKey).filter(function(f){ return f.key !== "day"; }).map(function(f){
+      return it[f.key] ? f.label + ": " + it[f.key] : "";
+    }).filter(Boolean);
+    return parts.join(", ");
+  }
+  // Every add/remove/edit to a plan is appended here so students (and Adam,
+  // reviewing later) can see how the plan evolved, not just its current
+  // state. Capped so a whole semester of edits never bloats localStorage.
+  function logPlanChange(trackKey, entry){
+    var history = state.planning[trackKey].history;
+    history.push(Object.assign({ts: Date.now()}, entry));
+    if(history.length > HISTORY_CAP) history.splice(0, history.length - HISTORY_CAP);
+  }
+  function historyEntryParts(e){
+    var d = new Date(e.ts);
+    var when = d.toLocaleDateString([], {month:"short", day:"numeric"}) + " " + d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+    var text;
+    if(e.type === "started") text = e.detail;
+    else if(e.type === "added") text = "Added “" + e.item + "”";
+    else if(e.type === "removed") text = "Removed “" + e.item + "”" + (e.detail ? " (" + e.detail + ")" : "");
+    else if(e.type === "renamed") text = "Renamed “" + e.from + "” to “" + e.to + "”";
+    else if(e.type === "changed"){
+      if(!e.from) text = "Set " + e.item + "’s " + e.field + " to " + e.to;
+      else if(!e.to) text = "Cleared " + e.item + "’s " + e.field + " (was " + e.from + ")";
+      else text = "Changed " + e.item + "’s " + e.field + " from " + e.from + " to " + e.to;
+    }
+    else if(e.type === "migrated") text = "Plan carried over from an earlier version of this dashboard";
+    else text = "Updated the plan";
+    return {when: when, text: text};
+  }
+  function formatHistoryEntry(e){ var p = historyEntryParts(e); return p.when + " — " + p.text; }
+  function seedPlanIfNeeded(trackKey){
+    var plan = state.planning[trackKey];
+    if(plan.items.length > 0) return;
+    var names = planQuickAddSource(trackKey);
+    if(names.length === 0) return;
+    plan.items = names.map(function(n){ return emptyPlanItem(n); });
+    logPlanChange(trackKey, {type:"started", detail: "Started the plan with " + names.length + " item" + (names.length === 1 ? "" : "s") + " from your research."});
+  }
+  function syncPlanFromResearch(trackKey){
+    var names = planQuickAddSource(trackKey);
+    if(names.length === 0) return;
+    var plan = state.planning[trackKey];
+    var existing = plan.items.map(function(it){ return it.name; });
+    names.forEach(function(n){
+      if(existing.indexOf(n) === -1){
+        plan.items.push(emptyPlanItem(n));
+        existing.push(n);
+        logPlanChange(trackKey, {type:"added", item:n});
+      }
+    });
+  }
+  function pruneItemForRemovedName(trackKey, name){
+    if(!name) return;
+    var plan = state.planning[trackKey];
+    plan.items = plan.items.filter(function(it){
+      if(it.name !== name) return true;
+      var untouched = !it.day && !it.sets && !it.reps && !it.weight && !it.detail && !it.notes;
+      return !untouched;
+    });
+  }
+  function renderPlanHistory(trackKey){
+    var el = document.getElementById(trackKey === "fitnessPlan" ? "fitness-plan-history" : "skills-plan-history");
+    if(!el) return;
+    var history = state.planning[trackKey].history;
+    if(!history.length){
+      el.innerHTML = '<p class="section-help history-empty">No changes yet — edits you make below will show up here as you build and improve your plan.</p>';
+      return;
+    }
+    var recent = history.slice(-40).slice().reverse();
+    el.innerHTML = '<ul>' + recent.map(function(e){
+      var p = historyEntryParts(e);
+      return '<li><strong>' + escapeHtml(p.when) + '</strong> — ' + escapeHtml(p.text) + '</li>';
+    }).join("") + '</ul>';
+  }
+  function renderPlanItems(trackKey){
+    var containerId = trackKey === "fitnessPlan" ? "fitness-plan-items" : "skills-plan-items";
+    var list = document.getElementById(containerId);
+    var plan = state.planning[trackKey];
+    var itemLabel = planItemLabel(trackKey);
+    var extraFields = planExtraFields(trackKey);
+    var tableHtml;
+    if(plan.items.length){
+      var headCells = '<th>'+itemLabel+'</th>'+
+        extraFields.map(function(f){ return '<th style="width:84px;">'+f.label+'</th>'; }).join("")+
+        '<th>Notes</th><th><span class="visually-hidden">Remove</span></th>';
+      var bodyRows = plan.items.map(function(it, i){
+        var extraCells = extraFields.map(function(f){
+          return '<td><input type="text" data-item="'+trackKey+':'+i+':'+f.key+'" value="'+escapeAttr(it[f.key])+'" placeholder="'+f.placeholder+'" aria-label="'+f.label+'"></td>';
+        }).join("");
+        return '<tr>'+
+          '<td><input type="text" data-item="'+trackKey+':'+i+':name" value="'+escapeAttr(it.name)+'" placeholder="'+itemLabel+' name" aria-label="'+itemLabel+' name"></td>'+
+          extraCells+
+          '<td><input type="text" data-item="'+trackKey+':'+i+':notes" value="'+escapeAttr(it.notes)+'" placeholder="Notes" aria-label="Notes"></td>'+
+          '<td><button class="btn btn-danger-ghost btn-sm" data-remove-item="'+trackKey+':'+i+'" type="button" aria-label="Remove '+itemLabel.toLowerCase()+'">✕</button></td>'+
+        '</tr>';
+      }).join("");
+      tableHtml = '<div style="overflow-x:auto;"><table class="meas-table"><thead><tr>'+headCells+'</tr></thead><tbody>'+bodyRows+'</tbody></table></div>';
+    } else {
+      tableHtml = '<p class="section-help" style="margin:6px 0;">No '+itemLabel.toLowerCase()+'s added yet.</p>';
+    }
+    var existingNames = plan.items.map(function(it){ return it.name; });
+    var quickSource = planQuickAddSource(trackKey).filter(function(name){ return existingNames.indexOf(name) === -1; });
+    var quickAdd = quickSource.length
+      ? '<div class="quickadd-row"><span class="hint">Quick add from your research:</span>'+
+        quickSource.map(function(name){ return '<button type="button" class="chip chip-muted" data-quickadd="'+trackKey+':'+encodeURIComponent(name)+'">+ '+escapeHtml(name)+'</button>'; }).join("")+
+        '</div>'
+      : '';
+    list.innerHTML = tableHtml + quickAdd;
+
+    list.querySelectorAll("[data-item]").forEach(function(inp){
+      inp.addEventListener("focus", function(){ inp.dataset.prev = inp.value; });
+      inp.addEventListener("input", function(){
+        var parts = inp.dataset.item.split(":");
+        state.planning[parts[0]].items[+parts[1]][parts[2]] = inp.value;
+        scheduleSave();
+      });
+      inp.addEventListener("change", function(){
+        var parts = inp.dataset.item.split(":");
+        var tKey = parts[0], idx = +parts[1], field = parts[2];
+        var item = state.planning[tKey].items[idx];
+        var prev = inp.dataset.prev !== undefined ? inp.dataset.prev : "";
+        var now = inp.value;
+        if(prev === now) return;
+        if(field === "name"){
+          if(!prev && now) logPlanChange(tKey, {type:"added", item: now});
+          else if(prev && now) logPlanChange(tKey, {type:"renamed", from: prev, to: now});
+        } else {
+          logPlanChange(tKey, {type:"changed", item: item.name || "(untitled)", field: planFieldLabel(tKey, field), from: prev, to: now});
+        }
+        renderPlanHistory(tKey);
+      });
+    });
+    list.querySelectorAll("[data-remove-item]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var parts = b.dataset.removeItem.split(":");
+        var tKey = parts[0], idx = +parts[1];
+        var it = state.planning[tKey].items[idx];
+        var snapshot = planItemSnapshot(tKey, it);
+        state.planning[tKey].items.splice(idx, 1);
+        logPlanChange(tKey, {type:"removed", item: it.name || "(untitled)", detail: snapshot});
+        scheduleSave();
+        renderPlanItems(tKey);
+        renderPlanHistory(tKey);
+      });
+    });
+    list.querySelectorAll("[data-quickadd]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var parts = b.dataset.quickadd.split(":");
+        var tKey = parts[0], name = decodeURIComponent(parts.slice(1).join(":"));
+        state.planning[tKey].items.push(emptyPlanItem(name));
+        logPlanChange(tKey, {type:"added", item:name});
+        scheduleSave();
+        renderPlanItems(tKey);
+        renderPlanHistory(tKey);
+      });
+    });
+  }
+  function renderPlanning(){
+    renderComponents(); renderExercises(); renderSubSkills();
+    seedPlanIfNeeded("fitnessPlan"); seedPlanIfNeeded("skillsPlan");
+    renderPlanItems("fitnessPlan"); renderPlanItems("skillsPlan");
+    renderPlanHistory("fitnessPlan"); renderPlanHistory("skillsPlan");
+  }
+
+  /* ============ Action: log ============ */
+  function renderHeatstrip(){
+    var strip = document.getElementById("heatstrip");
+    var days = [];
+    var today = new Date();
+    for(var i=27;i>=0;i--){
+      var d = new Date(today); d.setDate(d.getDate()-i);
+      days.push(d.toISOString().slice(0,10));
+    }
+    var byDate = {};
+    state.action.log.forEach(function(l){
+      if(!byDate[l.date]) byDate[l.date] = {fitness:false, skill:false};
+      if(l.goal === "fitness" || l.goal === "both") byDate[l.date].fitness = true;
+      if(l.goal === "skill" || l.goal === "both") byDate[l.date].skill = true;
+    });
+    strip.innerHTML = days.map(function(day){
+      var v = byDate[day];
+      var cls = "";
+      if(v && v.fitness && v.skill) cls = "both";
+      else if(v && v.fitness) cls = "fit";
+      else if(v && v.skill) cls = "skl";
+      return '<span class="hs-cell '+cls+'" title="'+day+'"></span>';
+    }).join("");
+  }
+  function renderLog(){
+    var list = document.getElementById("log-list");
+    var sorted = state.action.log.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+    if(sorted.length === 0){
+      list.innerHTML = '<p class="section-help" style="margin:0;">No sessions logged yet.</p>';
+    } else {
+      list.innerHTML = sorted.map(function(l){
+        var realIdx = state.action.log.indexOf(l);
+        var chip = l.goal === "both" ? '<span class="chip chip-fitness">Fitness</span> <span class="chip chip-skill">Skill</span>' :
+          (l.goal === "fitness" ? '<span class="chip chip-fitness">Fitness</span>' : '<span class="chip chip-skill">Skill</span>');
+        return '<div class="row-item" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">'+
+          '<span><strong class="mono">'+l.date+'</strong> &nbsp; '+chip+'</span>'+
+          '<button class="btn btn-danger-ghost btn-sm" data-remove-log="'+realIdx+'" type="button">Remove</button></div>';
+      }).join("");
+    }
+    list.querySelectorAll("[data-remove-log]").forEach(function(b){
+      b.addEventListener("click", function(){ state.action.log.splice(+b.dataset.removeLog,1); scheduleSave(); renderLog(); renderHeatstrip(); });
+    });
+    renderHeatstrip();
+  }
+  // Read-only view of the two Training & Practice Plans (built in Planning),
+  // shown under the Training log so a student can check their plan while
+  // logging a session without leaving the Action tab. Editing still only
+  // happens in Planning -- "Edit in Planning" jumps there.
+  function planReferenceHtml(trackKey){
+    var plan = state.planning[trackKey];
+    var itemLabel = planItemLabel(trackKey);
+    var fields = planExtraFields(trackKey);
+    var html = '<p style="margin:0 0 8px; font-size:.88rem;">'+
+      (plan.overview ? escapeHtml(plan.overview) : '<em style="color:var(--text-muted);">No plan overview yet.</em>')+'</p>';
+    if(!plan.items.length){
+      html += '<p class="section-help" style="margin:0 0 4px;">Nothing added yet — head to Planning to build this out.</p>';
+    } else {
+      html += '<div style="overflow-x:auto;"><table class="meas-table"><thead><tr><th>'+itemLabel+'</th>'+
+        fields.map(function(f){ return '<th>'+f.label+'</th>'; }).join("")+
+        '<th>Notes</th></tr></thead><tbody>'+
+        plan.items.map(function(it){
+          return '<tr><td>'+escapeHtml(it.name||"Untitled")+'</td>'+
+            fields.map(function(f){ return '<td>'+(it[f.key] ? escapeHtml(it[f.key]) : "—")+'</td>'; }).join("")+
+            '<td>'+escapeHtml(it.notes||"")+'</td></tr>';
+        }).join("")+
+        '</tbody></table></div>';
+    }
+    return html;
+  }
+  function renderActionPlanReference(){
+    var el = document.getElementById("action-plan-reference");
+    if(!el) return;
+    el.innerHTML = [["fitnessPlan","Fitness Plan","fitness"],["skillsPlan","Skills Plan","skill"]].map(function(pair, i){
+      return '<div class="track-head '+pair[2]+'" style="margin-top:'+(i===0?"0":"16px")+';">'+
+          '<span class="swatch" aria-hidden="true"></span><h3 class="section-title" style="margin:0; font-size:.95rem;">'+pair[1]+'</h3>'+
+        '</div>'+planReferenceHtml(pair[0]);
+    }).join("");
+  }
+
+  /* ============ Action: measurements ============ */
+  function sparkSvg(pre, mid, fin){
+    var vals = [pre, mid, fin].map(function(v){ return v === "" || v === undefined ? null : parseFloat(v); });
+    if(vals.every(function(v){ return v === null || isNaN(v); })) return "";
+    var known = vals.filter(function(v){ return v !== null && !isNaN(v); });
+    var min = Math.min.apply(null, known), max = Math.max.apply(null, known);
+    var range = max - min || 1;
+    var pts = vals.map(function(v, i){
+      var x = 4 + i*26;
+      if(v === null || isNaN(v)) return null;
+      var y = 24 - ((v - min) / range) * 18 - 3;
+      return [x,y];
+    });
+    var known2 = pts.filter(Boolean);
+    var line = known2.map(function(p){ return p.join(","); }).join(" ");
+    var dots = known2.map(function(p,i){ return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.6" fill="var(--accent)"></circle>'; }).join("");
+    return '<svg class="spark" width="64" height="26" viewBox="0 0 64 26"><polyline points="'+line+'" fill="none" stroke="var(--accent)" stroke-width="1.6"/>'+dots+'</svg>';
+  }
+  function renderMeasurements(){
+    var body = document.getElementById("meas-body");
+    if(state.action.measurements.length === 0){
+      body.innerHTML = '<tr><td colspan="6" class="section-help">No measurements yet — add one below.</td></tr>';
+    } else {
+      body.innerHTML = state.action.measurements.map(function(m,i){
+        return '<tr>'+
+          '<td><input type="text" data-m="'+i+'" data-f="name" value="'+escapeAttr(m.name)+'" placeholder="e.g. Vertical jump (cm)" aria-label="Measurement name"></td>'+
+          '<td><input type="text" data-m="'+i+'" data-f="pre" value="'+escapeAttr(m.pre)+'" aria-label="Pre-test score"></td>'+
+          '<td><input type="text" data-m="'+i+'" data-f="mid" value="'+escapeAttr(m.mid)+'" aria-label="Mid-test score"></td>'+
+          '<td><input type="text" data-m="'+i+'" data-f="fin" value="'+escapeAttr(m.fin)+'" aria-label="Final score"></td>'+
+          '<td>'+sparkSvg(m.pre,m.mid,m.fin)+'</td>'+
+          '<td><button class="btn btn-danger-ghost btn-sm" data-remove-m="'+i+'" type="button">✕<span class="visually-hidden"> Remove measurement</span></button></td>'+
+          '</tr>';
+      }).join("");
+    }
+    body.querySelectorAll("[data-m]").forEach(function(inp){
+      inp.addEventListener("input", function(){
+        state.action.measurements[+inp.dataset.m][inp.dataset.f] = inp.value;
+        scheduleSave();
+        var row = inp.closest("tr");
+        var sparkCell = row.children[4];
+        var m = state.action.measurements[+inp.dataset.m];
+        sparkCell.innerHTML = sparkSvg(m.pre,m.mid,m.fin);
+      });
+    });
+    body.querySelectorAll("[data-remove-m]").forEach(function(b){
+      b.addEventListener("click", function(){ state.action.measurements.splice(+b.dataset.removeM,1); scheduleSave(); renderMeasurements(); });
+    });
+  }
+
+  /* ============ Action: evidence ============ */
+  function renderEvidence(){
+    var list = document.getElementById("evidence-list");
+    if(state.action.evidence.length === 0){
+      list.innerHTML = '<p class="section-help" style="margin:0;">No evidence added yet.</p>';
+    } else {
+      list.innerHTML = state.action.evidence.map(function(e,i){
+        var photoBlock = "";
+        if(e.type === "photo"){
+          photoBlock = '<div class="field" style="margin-bottom:8px;">'+
+              '<label>Upload photo</label>'+
+              (e.image
+                ? '<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">'+
+                    '<img src="'+e.image+'" alt="" style="width:96px; height:72px; object-fit:cover; border-radius:8px; border:1px solid var(--border);">'+
+                    '<button class="btn btn-danger-ghost btn-sm" data-remove-ev-image="'+i+'" type="button">Remove photo</button>'+
+                  '</div>'
+                : '<button class="btn btn-ghost btn-sm" data-upload-ev-image="'+i+'" type="button">Choose photo…</button>')+
+              '<input type="file" accept="image/*" data-ev-image-input="'+i+'" class="visually-hidden" aria-hidden="true">'+
+            '</div>';
+        }
+        return '<div class="row-item"><div class="row-item-head"><span class="idx">Evidence '+(i+1)+'</span>'+
+          '<button class="btn btn-danger-ghost btn-sm" data-remove-ev="'+i+'" type="button">Remove</button></div>'+
+          '<div class="grid-2">'+
+            '<div class="field"><label>Title</label><input type="text" data-ev="'+i+'" data-ef="title" value="'+escapeAttr(e.title)+'"></div>'+
+            '<div class="field"><label>Type</label><select data-ev="'+i+'" data-ef="type">'+
+              ['photo','video','note'].map(function(t){ return '<option value="'+t+'"'+(e.type===t?' selected':'')+'>'+t.charAt(0).toUpperCase()+t.slice(1)+'</option>'; }).join('')+
+            '</select></div></div>'+
+          photoBlock+
+          '<div class="field" style="margin-bottom:8px;"><label>Link (optional'+(e.type==="photo"?", or use this instead of uploading":"")+')</label><input type="url" data-ev="'+i+'" data-ef="link" value="'+escapeAttr(e.link)+'" placeholder="https://"></div>'+
+          '<div class="field" style="margin-bottom:0;"><label>Description</label><textarea data-ev="'+i+'" data-ef="note">'+escapeHtml(e.note)+'</textarea></div></div>';
+      }).join("");
+    }
+    list.querySelectorAll("[data-ev]").forEach(function(el){
+      el.addEventListener("input", function(){
+        state.action.evidence[+el.dataset.ev][el.dataset.ef] = el.value; scheduleSave();
+      });
+      if(el.tagName === "SELECT"){
+        el.addEventListener("change", function(){
+          state.action.evidence[+el.dataset.ev][el.dataset.ef] = el.value;
+          scheduleSave();
+          renderEvidence();
+        });
+      }
+    });
+    list.querySelectorAll("[data-remove-ev]").forEach(function(b){
+      b.addEventListener("click", function(){ state.action.evidence.splice(+b.dataset.removeEv,1); scheduleSave(); renderEvidence(); });
+    });
+    list.querySelectorAll("[data-upload-ev-image]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var input = list.querySelector('[data-ev-image-input="'+b.dataset.uploadEvImage+'"]');
+        if(input) input.click();
+      });
+    });
+    list.querySelectorAll("[data-ev-image-input]").forEach(function(input){
+      input.addEventListener("change", function(){
+        var idx = +input.dataset.evImageInput;
+        var f = input.files[0];
+        input.value = "";
+        if(!f) return;
+        if(!/^image\//.test(f.type)){ toast("Please choose an image file"); return; }
+        downscaleImage(f, 640, 0.82).then(function(res){
+          state.action.evidence[idx].image = res.dataUrl;
+          state.action.evidence[idx].imageW = res.width;
+          state.action.evidence[idx].imageH = res.height;
+          scheduleSave();
+          renderEvidence();
+          toast("Photo added");
+        }).catch(function(err){ toast(err && err.message ? err.message : "Couldn't process that image"); });
+      });
+    });
+    list.querySelectorAll("[data-remove-ev-image]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var idx = +b.dataset.removeEvImage;
+        state.action.evidence[idx].image = ""; state.action.evidence[idx].imageW = 0; state.action.evidence[idx].imageH = 0;
+        scheduleSave();
+        renderEvidence();
+      });
+    });
+  }
+
+  /* ============ Action: mid-unit reflections ============ */
+  function renderMidReflections(){
+    var list = document.getElementById("midref-list");
+    var entries = state.action.midReflections;
+    if(entries.length === 0){
+      list.innerHTML = '<p class="section-help" style="margin:0;">No reflections yet — add your first one below.</p>';
+    } else {
+      list.innerHTML = entries.map(function(r,i){
+        return '<div class="row-item"><div class="row-item-head"><span class="idx">Reflection '+(i+1)+'</span>'+
+          '<button class="btn btn-danger-ghost btn-sm" data-remove-midref="'+i+'" type="button">Remove</button></div>'+
+          '<div class="field" style="margin-bottom:8px; max-width:220px;"><label>Date</label><input type="date" data-midref="'+i+'" data-mf="date" value="'+escapeAttr(r.date)+'"></div>'+
+          '<div class="field" style="margin-bottom:0;"><label>How is it going so far? What\'s working, what needs to change?</label><textarea data-midref="'+i+'" data-mf="text">'+escapeHtml(r.text)+'</textarea></div></div>';
+      }).join("");
+    }
+    list.querySelectorAll("[data-midref]").forEach(function(el){
+      el.addEventListener("input", function(){
+        state.action.midReflections[+el.dataset.midref][el.dataset.mf] = el.value;
+        scheduleSave();
+        updateMidRefCount();
+      });
+    });
+    list.querySelectorAll("[data-remove-midref]").forEach(function(b){
+      b.addEventListener("click", function(){
+        state.action.midReflections.splice(+b.dataset.removeMidref,1);
+        scheduleSave();
+        renderMidReflections();
+      });
+    });
+    updateMidRefCount();
+  }
+  function updateMidRefCount(){
+    var chip = document.getElementById("midref-count-chip");
+    if(!chip) return;
+    var done = state.action.midReflections.filter(function(r){ return r.text && r.text.trim(); }).length;
+    chip.textContent = done + " of 2 done";
+    chip.className = "chip " + (done >= 2 ? "chip-fitness" : "chip-muted");
+  }
+
+  /* ============ Reflection ============ */
+  function renderTodos(){
+    var wrap = document.getElementById("todo-list");
+    wrap.innerHTML = TODOS.map(function(t){
+      var checked = !!state.reflection.todos[t.key];
+      return '<div class="todo-row '+(checked?"done":"")+'">'+
+        '<input type="checkbox" id="todo-'+t.key+'" data-todo="'+t.key+'" '+(checked?"checked":"")+'>'+
+        '<label for="todo-'+t.key+'">'+t.label+'</label></div>';
+    }).join("");
+    wrap.querySelectorAll("[data-todo]").forEach(function(cb){
+      cb.addEventListener("change", function(){
+        state.reflection.todos[cb.dataset.todo] = cb.checked;
+        scheduleSave();
+        renderTodos();
+      });
+    });
+  }
+  function renderProgressSummary(){
+    var el = document.getElementById("progress-summary");
+    var out = "";
+    ["fitness","skill"].forEach(function(kind){
+      var g = state.goals[kind];
+      var label = kind === "fitness" ? "Fitness Goal" : "Skills Goal";
+      var chipClass = kind === "fitness" ? "chip-fitness" : "chip-skill";
+      var meas = state.action.measurements;
+      var deltaText = "";
+      if(meas.length){
+        var withData = meas.filter(function(m){ return m.pre !== "" && (m.fin !== "" || m.mid !== ""); });
+        if(withData.length){
+          var m = withData[0];
+          var end = m.fin !== "" ? m.fin : m.mid;
+          var p = parseFloat(m.pre), f = parseFloat(end);
+          if(!isNaN(p) && !isNaN(f)){
+            var diff = (f - p);
+            deltaText = m.name + ": " + m.pre + " → " + end + (diff !== 0 ? " (" + (diff>0?"+":"") + diff.toFixed(1) + ")" : "");
+          }
+        }
+      }
+      out += '<div style="margin-bottom:14px;"><span class="chip '+chipClass+'">'+label+'</span>'+
+        '<p style="margin:8px 0 0; font-size:.9rem;">'+(g.s ? escapeHtml(g.s) : '<em style="color:var(--text-muted)">No goal statement yet — add one on the Goal Setting page.</em>')+'</p>'+
+        (deltaText ? '<p class="mono" style="margin:4px 0 0; font-size:.82rem; color:var(--text-muted);">'+escapeHtml(deltaText)+'</p>' : '')+
+        '</div>';
+    });
+    el.innerHTML = out;
+  }
+
+  /* ============ Overview ============ */
+  var PART_KEYS = ["goals","planning","action","reflection"];
+  function sectionCompletion(id){
+    if(id === "goals"){
+      var fields = SMART_FIELDS.map(function(f){return f.key;});
+      var total = (fields.length+1)*2 + 1, filled = 0;
+      ["fitness","skill"].forEach(function(k){
+        fields.forEach(function(f){ if(state.goals[k][f]) filled++; });
+        if(state.goals[k].ownWords) filled++;
+      });
+      if(state.goals.fitness.components.length>0) filled++;
+      return filled/total;
+    }
+    if(id === "planning"){
+      var p = state.planning;
+      var checks = [p.components.length>0, !!p.programName, !!p.credibility, p.exercises.length>0, !!p.video1, p.subSkills.length>0, !!p.subSkillsToDevelop, p.fitnessPlan.items.length>0 || p.skillsPlan.items.length>0];
+      return checks.filter(Boolean).length / checks.length;
+    }
+    if(id === "action"){
+      var a = state.action;
+      var midRefsDone = a.midReflections.filter(function(r){ return r.text && r.text.trim(); }).length >= 2;
+      var checks = [a.log.length>0, a.measurements.length>0, a.evidence.length>0, midRefsDone];
+      return checks.filter(Boolean).length / checks.length;
+    }
+    if(id === "reflection"){
+      var r = state.reflection;
+      var checks = [!!r.growthEvidence, !!r.challenges, !!r.changed, !!r.nextSteps];
+      var todoVals = Object.keys(r.todos).length ? Object.values(r.todos) : [];
+      var allChecks = checks.concat(todoVals);
+      return allChecks.length ? allChecks.filter(Boolean).length/allChecks.length : 0;
+    }
+    return 0;
+  }
+  function overallCompletion(){
+    var vals = PART_KEYS.map(sectionCompletion);
+    return vals.reduce(function(a,b){return a+b;},0) / vals.length;
+  }
+  function renderOverview(){
+    var pct = Math.round(overallCompletion()*100);
+    var goalsSet = ["fitness","skill"].filter(function(k){ return state.goals[k].s; }).length;
+    var measCount = state.action.measurements.length;
+    var sessionCount = state.action.log.length;
+
+    document.getElementById("stat-row").innerHTML = [
+      {n: pct+"%", l:"Portfolio complete"},
+      {n: goalsSet+"/2", l:"Goals set"},
+      {n: String(sessionCount), l:"Sessions logged"},
+      {n: String(measCount), l:"Measurements tracked"}
+    ].map(function(s){ return '<div class="stat-tile"><div class="num">'+s.n+'</div><div class="lbl">'+s.l+'</div></div>'; }).join("");
+
+    var partMeta = {};
+    SECTIONS.forEach(function(s){ if(PART_KEYS.indexOf(s.id) > -1) partMeta[s.id] = {label:s.label, icon:s.icon}; });
+    document.getElementById("part-progress").innerHTML = PART_KEYS.map(function(k){
+      var p = Math.round(sectionCompletion(k)*100);
+      return '<div class="part-row">'+
+        '<span class="p-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+partMeta[k].icon+'</svg></span>'+
+        '<div class="p-body"><div class="p-title">'+partMeta[k].label+'</div>'+
+          '<div class="p-track"><div class="progress-track"><div class="progress-fill" style="width:'+p+'%"></div></div></div></div>'+
+        '<span class="p-pct">'+p+'%</span>'+
+        '<button class="btn btn-ghost btn-sm p-go" data-goto="'+k+'" type="button">Open</button>'+
+        '</div>';
+    }).join("");
+    document.querySelectorAll("[data-goto]").forEach(function(b){
+      b.addEventListener("click", function(){ showSection(b.dataset.goto); });
+    });
+
+    SECTIONS.forEach(function(s){
+      var el = document.getElementById("navpct-"+s.id);
+      if(!el) return;
+      if(PART_KEYS.indexOf(s.id) === -1){ el.textContent = ""; return; }
+      el.textContent = Math.round(sectionCompletion(s.id)*100)+"%";
+    });
+  }
+
+  /* ============ Helpers ============ */
+  function escapeHtml(s){ return (s||"").replace(/[&<>]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c]; }); }
+  function escapeAttr(s){ return escapeHtml(s).replace(/"/g,"&quot;"); }
+  function slug(s){ return (s||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,""); }
+  function toast(msg){
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t._timer);
+    t._timer = setTimeout(function(){ t.classList.remove("show"); }, 2600);
+  }
+
+  /* ============ Add-row buttons ============ */
+  function wireAdders(){
+    document.getElementById("btn-action-goto-planning").addEventListener("click", function(){ showSection("planning"); });
+    document.getElementById("btn-add-exercise").addEventListener("click", function(){
+      if(state.planning.exercises.length >= 6) return;
+      state.planning.exercises.push(""); scheduleSave(); renderExercises();
+    });
+    document.getElementById("btn-add-subskill").addEventListener("click", function(){
+      state.planning.subSkills.push({name:"",learnings:""}); scheduleSave(); renderSubSkills();
+    });
+    document.getElementById("btn-add-fitness-item").addEventListener("click", function(){
+      state.planning.fitnessPlan.items.push(emptyPlanItem());
+      scheduleSave(); renderPlanItems("fitnessPlan");
+    });
+    document.getElementById("btn-add-skills-item").addEventListener("click", function(){
+      state.planning.skillsPlan.items.push(emptyPlanItem());
+      scheduleSave(); renderPlanItems("skillsPlan");
+    });
+    document.getElementById("btn-add-log").addEventListener("click", function(){
+      var d = document.getElementById("log-date").value;
+      if(!d){ toast("Pick a date first"); return; }
+      var g = document.getElementById("log-goal").value;
+      state.action.log.push({date:d, goal:g});
+      scheduleSave(); renderLog();
+    });
+    document.getElementById("btn-add-meas").addEventListener("click", function(){
+      state.action.measurements.push({name:"",pre:"",mid:"",fin:""}); scheduleSave(); renderMeasurements();
+    });
+    document.getElementById("btn-add-evidence").addEventListener("click", function(){
+      state.action.evidence.push({title:"",type:"photo",link:"",note:"",image:"",imageW:0,imageH:0}); scheduleSave(); renderEvidence();
+    });
+    document.getElementById("btn-add-midref").addEventListener("click", function(){
+      state.action.midReflections.push({id:newId(), date:"", text:""}); scheduleSave(); renderMidReflections();
+    });
+  }
+
+  /* ============ Toolbar: text size / contrast ============ */
+  function wireToolbar(){
+    var sizeBtn = document.getElementById("btn-textsize");
+    var contrastBtn = document.getElementById("btn-contrast");
+    function applyPrefs(){
+      document.documentElement.style.setProperty("--font-scale", state.prefs.textSize === "large" ? "1.18" : "1");
+      document.documentElement.setAttribute("data-contrast", state.prefs.contrast);
+      sizeBtn.setAttribute("aria-pressed", String(state.prefs.textSize === "large"));
+      contrastBtn.setAttribute("aria-pressed", String(state.prefs.contrast === "high"));
+    }
+    sizeBtn.addEventListener("click", function(){
+      state.prefs.textSize = state.prefs.textSize === "large" ? "normal" : "large";
+      scheduleSave(); applyPrefs();
+    });
+    contrastBtn.addEventListener("click", function(){
+      state.prefs.contrast = state.prefs.contrast === "high" ? "normal" : "high";
+      scheduleSave(); applyPrefs();
+    });
+    applyPrefs();
+  }
+
+  /* ============ Export / Import ============ */
+  function wireFallbackModal(){
+    document.getElementById("modal-fallback-close").addEventListener("click", closeFallbackModal);
+  }
+  function closeFallbackModal(){
+    document.getElementById("modal-fallback").classList.remove("is-open");
+    document.getElementById("fallback-body").innerHTML = "";
+    var primary = document.getElementById("modal-fallback-primary");
+    primary.hidden = true;
+    primary.onclick = null;
+    var secondary = document.getElementById("modal-fallback-secondary");
+    secondary.hidden = true;
+    secondary.onclick = null;
+  }
+  function showFallbackText(text, title, hint, opts){
+    closeFallbackModal();
+    document.getElementById("modal-fallback-title").textContent = title;
+    // When an html preview is supplied, show that instead of a plain
+    // textarea: selecting styled, rendered content and copying it puts a
+    // formatted (text/html) version on the clipboard alongside the plain
+    // text one, so pasting into a Google Doc or Canvas's rich text editor
+    // keeps the dashboard's headings/colors/tables, while a plain textarea
+    // target still gets the plain text automatically.
+    var contentHtml = (opts && opts.html)
+      ? '<div id="fallback-rich" tabindex="0" style="width:100%;max-height:44vh;overflow:auto;border:1px solid var(--border);border-radius:10px;padding:16px;background:'+HTML_BG+';">'+opts.html+'</div>'
+      : '<textarea id="fallback-textarea" readonly style="width:100%; height:44vh; font-family:\'JetBrains Mono\', monospace; font-size:.8rem;"></textarea>';
+    document.getElementById("fallback-body").innerHTML =
+      '<p class="section-help" style="margin:0 0 10px;">Downloads aren\'t available in this view. '+escapeHtml(hint)+'</p>'+
+      contentHtml+
+      '<button class="btn btn-ghost btn-sm" id="btn-fallback-select" type="button" style="margin-top:8px;">Select all'+(opts && opts.html ? "" : " text")+'</button>';
+    document.getElementById("modal-fallback").classList.add("is-open");
+    var selectFn;
+    if(opts && opts.html){
+      var rich = document.getElementById("fallback-rich");
+      selectFn = function(){
+        rich.focus();
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        var range = document.createRange();
+        range.selectNodeContents(rich);
+        sel.addRange(range);
+      };
+    } else {
+      var ta = document.getElementById("fallback-textarea");
+      ta.value = text;
+      selectFn = function(){ ta.focus(); ta.select(); };
+    }
+    document.getElementById("btn-fallback-select").addEventListener("click", selectFn);
+  }
+  function showPrintFallback(title, message, printFn, textFallback){
+    closeFallbackModal();
+    document.getElementById("modal-fallback-title").textContent = title;
+    // The browser print dialog is blocked in some signed-out/embedded views,
+    // so "Copy formatted version" is the recommended, always-works path — it
+    // keeps the dashboard's own headings/colors/tables (see buildSummaryHtml/
+    // buildPlanSummaryHtml) when pasted into a Google Doc or Canvas's rich
+    // text editor. The print dialog is offered as a secondary option since
+    // it may still work in some browsers even though it didn't in testing.
+    document.getElementById("fallback-body").innerHTML =
+      '<p class="section-help" style="margin:0;">Downloads aren\'t available in this view. '+
+      '<strong>Copy formatted version</strong> below is the option that works everywhere — it keeps the same look as this dashboard (headings, colors, tables) when pasted into a Canvas text box, a Google Doc, or a new document, which you can then print or Save as PDF from. '+
+      (textFallback ? 'You can also try your browser\'s print dialog directly, though it doesn\'t open in every browser. ' : '')+
+      escapeHtml(message)+'</p>';
+    document.getElementById("modal-fallback").classList.add("is-open");
+    var primary = document.getElementById("modal-fallback-primary");
+    primary.hidden = false;
+    primary.textContent = "Try print dialog";
+    // Call print() synchronously in the click handler — any delay (even a
+    // setTimeout) can make browsers silently ignore it outside a user gesture.
+    primary.onclick = function(){
+      printFn();
+      closeFallbackModal();
+    };
+    if(textFallback){
+      var secondary = document.getElementById("modal-fallback-secondary");
+      secondary.hidden = false;
+      secondary.textContent = "Copy formatted version (recommended)";
+      secondary.onclick = function(){
+        showFallbackText(textFallback.text, textFallback.title, textFallback.hint, {html: textFallback.html});
+      };
+    }
+  }
+  function cleanupPrintMode(){
+    document.body.classList.remove("print-mode", "print-plan-only");
+    document.querySelectorAll(".panel.print-active").forEach(function(p){ p.classList.remove("print-active"); });
+  }
+  function printPortfolio(){
+    document.body.classList.add("print-mode");
+    document.querySelectorAll(".panel").forEach(function(p){ p.classList.add("print-active"); });
+    window.addEventListener("afterprint", cleanupPrintMode, {once:true});
+    window.print();
+    setTimeout(cleanupPrintMode, 15000);
+  }
+  function printPlanOnly(){
+    document.body.classList.add("print-mode", "print-plan-only");
+    document.getElementById("panel-planning").classList.add("print-active");
+    window.addEventListener("afterprint", cleanupPrintMode, {once:true});
+    window.print();
+    setTimeout(cleanupPrintMode, 15000);
+  }
+  function buildPlanSummaryText(){
+    var lines = [];
+    lines.push("Training & Practice Plan — Physical Activity for Life");
+    if(state.meta.studentName) lines.push("Student: " + state.meta.studentName);
+    lines.push("");
+    [["fitnessPlan","Fitness Plan"],["skillsPlan","Skills Plan"]].forEach(function(pair){
+      var key = pair[0];
+      var plan = state.planning[key];
+      lines.push(pair[1]);
+      lines.push("Overview: " + (plan.overview || "Not yet answered"));
+      if(plan.items.length){
+        plan.items.forEach(function(it){
+          var meta = key === "fitnessPlan"
+            ? [it.day ? "day: "+it.day : "", it.sets ? "sets: "+it.sets : "", it.reps ? "reps: "+it.reps : "", it.weight ? "weight: "+it.weight : ""].filter(Boolean).join(", ")
+            : [it.day ? "day: "+it.day : "", it.detail ? "duration: "+it.detail : ""].filter(Boolean).join(", ");
+          lines.push("   - " + (it.name||"Untitled") + (meta?" — "+meta:"") + (it.notes?" ("+it.notes+")":""));
+        });
+      } else {
+        lines.push("   Nothing added yet.");
+      }
+      if(plan.history.length){
+        lines.push("   Recent changes:");
+        plan.history.slice(-10).slice().reverse().forEach(function(e){ lines.push("     " + formatHistoryEntry(e)); });
+      }
+      lines.push("");
+    });
+    return lines.join("\n");
+  }
+  async function exportJson(){
+    var downloads = window.claude ? await window.claude.use("downloads").catch(function(){ return null; }) : null;
+    var data = JSON.stringify(state, null, 2);
+    var namePart = slug(state.meta.studentName);
+    var filename = "pafl-portfolio"+(namePart?"-"+namePart:"")+"-"+new Date().toISOString().slice(0,10)+".json";
+    if(downloads){
+      try{
+        await downloads.save({filename: filename, data: data});
+        toast("Backup saved");
+      }catch(e){ toast("Couldn't save — try again"); }
+    } else {
+      showFallbackText(data, "Backup file", "Click \"Select all text\" below, copy it (Ctrl/Cmd+C), then paste it into a plain-text editor (Notepad, or TextEdit set to Plain Text — not Word or Google Docs, which can change the quote marks and break the file) and save it as "+filename+". If you're using Notepad, choose \"All Files\" as the save type, not \"Text Documents\" — otherwise it may save as "+filename+".txt instead.");
+    }
+  }
+  function buildSummaryMd(){
+    var lines = [];
+    lines.push("# Physical Activity for Life — Portfolio Summary");
+    if(state.meta.studentName) lines.push("**Student:** " + state.meta.studentName);
+    lines.push("");
+    lines.push("## Part 1 — Goal Setting");
+    lines.push("_Why these goals:_ " + (state.goals.why || "_not yet answered_"));
+    ["fitness","skill"].forEach(function(kind){
+      var g = state.goals[kind];
+      lines.push("");
+      lines.push("### " + (kind === "fitness" ? "Fitness Goal" : "Skills Goal"));
+      if(kind === "fitness"){
+        lines.push("- **Component(s) of fitness targeted:** " + (g.components && g.components.length ? g.components.join(", ") : "_not yet chosen_"));
+      }
+      SMART_FIELDS.forEach(function(f){ lines.push("- **" + f.label + ":** " + (g[f.key] || "_not yet answered_")); });
+      lines.push("- **In my own words:** " + (g.ownWords || "_not yet answered_"));
+    });
+    lines.push("");
+    lines.push("## Part 2 — Planning");
+    lines.push("**Components of fitness targeted:** " + (state.planning.components.join(", ") || "_none selected_"));
+    lines.push("**Source:** " + (state.planning.programName || "_none_") + " — " + (state.planning.credibility || ""));
+    if(state.planning.exercises.length){
+      lines.push("**Exercises:**");
+      state.planning.exercises.forEach(function(e,i){ lines.push((i+1)+". " + (e || "_untitled_")); });
+    }
+    if(state.planning.subSkills.length){
+      lines.push("**Sub-skills:**");
+      state.planning.subSkills.forEach(function(s){ lines.push("- " + (s.name||"Untitled") + ": " + (s.learnings||"")); });
+    }
+    lines.push("**Sub-skills to develop:** " + (state.planning.subSkillsToDevelop || "_not yet chosen_"));
+    lines.push("");
+    [["fitnessPlan","Fitness Plan"],["skillsPlan","Skills Plan"]].forEach(function(pair){
+      var key = pair[0];
+      var plan = state.planning[key];
+      lines.push("### " + pair[1]);
+      lines.push("_Overview:_ " + (plan.overview || "_not yet answered_"));
+      if(plan.items.length){
+        plan.items.forEach(function(it){
+          var meta = key === "fitnessPlan"
+            ? [it.day ? "day: "+it.day : "", it.sets ? "sets: "+it.sets : "", it.reps ? "reps: "+it.reps : "", it.weight ? "weight: "+it.weight : ""].filter(Boolean).join(", ")
+            : [it.day ? "day: "+it.day : "", it.detail ? "duration: "+it.detail : ""].filter(Boolean).join(", ");
+          lines.push("- " + (it.name||"Untitled") + (meta?" — "+meta:"") + (it.notes?" ("+it.notes+")":""));
+        });
+      } else {
+        lines.push("_Nothing added yet._");
+      }
+      if(plan.history.length){
+        lines.push("");
+        lines.push("_Recent changes:_");
+        plan.history.slice(-10).slice().reverse().forEach(function(e){ lines.push("- " + formatHistoryEntry(e)); });
+      }
+      lines.push("");
+    });
+    lines.push("## Part 3 — Action");
+    lines.push("**Sessions logged:** " + state.action.log.length);
+    if(state.action.measurements.length){
+      lines.push("**Measurements:**");
+      state.action.measurements.forEach(function(m){
+        lines.push("- " + (m.name||"Untitled") + " — pre: " + (m.pre||"—") + ", mid: " + (m.mid||"—") + ", final: " + (m.fin||"—"));
+      });
+    }
+    if(state.action.evidence.length){
+      lines.push("**Evidence:**");
+      state.action.evidence.forEach(function(e){ lines.push("- [" + e.type + "] " + (e.title||"Untitled") + (e.image ? " (photo attached — see PDF export)" : "") + (e.link ? " — " + e.link : "") + (e.note ? " — " + e.note : "")); });
+    }
+    if(state.action.midReflections.length){
+      lines.push("**Mid-unit reflections:**");
+      state.action.midReflections.forEach(function(r){ lines.push("- " + (r.date || "no date") + " — " + (r.text || "_not yet answered_")); });
+    } else {
+      lines.push("**Mid-unit reflections:** _none yet — need at least 2_");
+    }
+    lines.push("");
+    lines.push("## Part 4 — Reflection");
+    lines.push("**Growth evidence:** " + (state.reflection.growthEvidence || "_not yet answered_"));
+    lines.push("**Challenges:** " + (state.reflection.challenges || "_not yet answered_"));
+    lines.push("**What I'd change:** " + (state.reflection.changed || "_not yet answered_"));
+    lines.push("**What's next:** " + (state.reflection.nextSteps || "_not yet answered_"));
+    return lines.join("\n");
+  }
+
+  /* ============ Rich HTML version of the summary, for copy/paste ============
+     Selecting a styled, rendered DOM node and copying it puts BOTH a
+     text/html and a text/plain representation on the clipboard — Google
+     Docs and Canvas's rich text editor use the html one (headings, colors,
+     tables carry over, looking like the dashboard itself), while a plain
+     textarea target just falls back to the flattened text automatically. */
+  function htmlBanner(title, subtitle){
+    return '<div style="background:'+HTML_NAVY+';color:#fff;border-radius:10px;padding:18px 20px;margin:0 0 16px;">'
+      + '<div style="font-family:Oswald,\'Arial Narrow\',sans-serif;font-size:11px;letter-spacing:.12em;color:'+HTML_GOLD_SOFT+';text-transform:uppercase;margin-bottom:4px;">FIS Warriors &middot; Physical Activity for Life</div>'
+      + '<div style="font-family:Oswald,\'Arial Narrow\',sans-serif;font-size:20px;letter-spacing:.02em;text-transform:uppercase;">'+escapeHtml(title)+'</div>'
+      + (subtitle ? '<div style="font-family:Oswald,\'Arial Narrow\',sans-serif;font-size:13px;color:#cfd8e6;text-transform:uppercase;letter-spacing:.03em;margin-top:2px;">'+escapeHtml(subtitle)+'</div>' : "")
+      + '</div>';
+  }
+  function htmlCard(accent, titleText, innerHtml){
+    return '<div style="border:1px solid '+HTML_LINE+';border-left:6px solid '+accent+';border-radius:10px;padding:16px 18px;margin:0 0 16px;background:#fff;">'
+      + '<h2 style="margin:0 0 10px;font-family:Oswald,\'Arial Narrow\',sans-serif;text-transform:uppercase;letter-spacing:.04em;font-size:15px;color:'+HTML_NAVY+';">'+titleText+'</h2>'
+      + innerHtml
+      + '</div>';
+  }
+  function htmlField(label, value){
+    var v = value ? escapeHtml(value) : '<span style="color:'+HTML_MUTED+';font-style:italic;">not yet answered</span>';
+    return '<p style="margin:0 0 8px;line-height:1.5;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:13px;color:'+HTML_TEXT+';">'
+      + '<strong style="color:'+HTML_NAVY+';">'+escapeHtml(label)+':</strong> '+v+'</p>';
+  }
+  function htmlHistoryList(trackKey, plan, limit){
+    if(!plan.history.length) return "";
+    var recent = plan.history.slice(-(limit||10)).slice().reverse();
+    return '<p style="margin:12px 0 4px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:12px;"><strong style="color:'+HTML_NAVY+';">Recent changes:</strong></p>'
+      + '<ul style="margin:0;padding-left:20px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:12px;color:'+HTML_TEXT+';">'
+      + recent.map(function(e){ return '<li>'+escapeHtml(formatHistoryEntry(e))+'</li>'; }).join("")
+      + '</ul>';
+  }
+  function htmlPlanTable(trackKey, plan){
+    var fields = planExtraFields(trackKey);
+    var itemLabel = planItemLabel(trackKey);
+    var html = htmlField("Overview", plan.overview);
+    if(!plan.items.length){
+      html += '<p style="margin:0;color:'+HTML_MUTED+';font-style:italic;font-size:13px;">Nothing added yet.</p>';
+    } else {
+      html += '<table style="width:100%;border-collapse:collapse;margin:0 0 6px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:12px;">'
+        + '<tr style="background:'+HTML_NAVY+';color:#fff;">'
+        + '<th style="text-align:left;padding:6px 8px;border:1px solid '+HTML_NAVY+';">'+itemLabel+'</th>'
+        + fields.map(function(f){ return '<th style="text-align:left;padding:6px 8px;border:1px solid '+HTML_NAVY+';">'+f.label+'</th>'; }).join("")
+        + '<th style="text-align:left;padding:6px 8px;border:1px solid '+HTML_NAVY+';">Notes</th></tr>';
+      plan.items.forEach(function(it, idx){
+        var bg = idx % 2 ? HTML_BG : "#fff";
+        html += '<tr style="background:'+bg+';">'
+          + '<td style="padding:6px 8px;border:1px solid '+HTML_LINE+';">'+escapeHtml(it.name||"Untitled")+'</td>'
+          + fields.map(function(f){ return '<td style="padding:6px 8px;border:1px solid '+HTML_LINE+';">'+escapeHtml(it[f.key]||"")+'</td>'; }).join("")
+          + '<td style="padding:6px 8px;border:1px solid '+HTML_LINE+';">'+escapeHtml(it.notes||"")+'</td></tr>';
+      });
+      html += '</table>';
+    }
+    html += htmlHistoryList(trackKey, plan, 10);
+    return html;
+  }
+  function buildSummaryHtml(){
+    var html = htmlBanner("Portfolio Summary", state.meta.studentName ? "Student: "+state.meta.studentName : "");
+
+    var goalsBody = htmlField("Why these goals", state.goals.why);
+    [["fitness","Fitness Goal",HTML_GOLD],["skill","Skills Goal",HTML_SKYBLUE]].forEach(function(pair){
+      var g = state.goals[pair[0]];
+      var body = (pair[0] === "fitness" ? htmlField("Component(s) of fitness targeted", g.components && g.components.length ? g.components.join(", ") : "") : "")
+        + SMART_FIELDS.map(function(f){ return htmlField(f.label, g[f.key]); }).join("") + htmlField("In my own words", g.ownWords);
+      goalsBody += '<div style="margin-top:12px;padding:12px 14px;border-radius:8px;background:'+HTML_BG+';border-left:4px solid '+pair[2]+';">'
+        + '<h3 style="margin:0 0 8px;font-family:Oswald,\'Arial Narrow\',sans-serif;font-size:13px;text-transform:uppercase;color:'+HTML_NAVY+';">'+pair[1]+'</h3>'
+        + body + '</div>';
+    });
+    html += htmlCard(HTML_CRIMSON, "Part 1 &mdash; Goal Setting", goalsBody);
+
+    var planningBody = htmlField("Components of fitness targeted", state.planning.components.join(", "))
+      + htmlField("Source", (state.planning.programName||"") + (state.planning.credibility ? " — "+state.planning.credibility : ""));
+    if(state.planning.exercises.length){
+      planningBody += '<p style="margin:0 0 4px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:13px;"><strong style="color:'+HTML_NAVY+';">Exercises researched:</strong></p>'
+        + '<ol style="margin:0 0 10px;padding-left:20px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:13px;color:'+HTML_TEXT+';">'+state.planning.exercises.map(function(e){ return '<li>'+escapeHtml(e||"Untitled")+'</li>'; }).join("")+'</ol>';
+    }
+    if(state.planning.subSkills.length){
+      planningBody += '<p style="margin:0 0 4px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:13px;"><strong style="color:'+HTML_NAVY+';">Sub-skills:</strong></p>'
+        + '<ul style="margin:0 0 10px;padding-left:20px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:13px;color:'+HTML_TEXT+';">'+state.planning.subSkills.map(function(s){ return '<li>'+escapeHtml(s.name||"Untitled")+(s.learnings?": "+escapeHtml(s.learnings):"")+'</li>'; }).join("")+'</ul>';
+    }
+    planningBody += htmlField("Sub-skills to develop", state.planning.subSkillsToDevelop);
+    [["fitnessPlan","Fitness Plan",HTML_GOLD],["skillsPlan","Skills Plan",HTML_SKYBLUE]].forEach(function(pair){
+      var key = pair[0], plan = state.planning[key];
+      planningBody += '<div style="margin-top:14px;padding:12px 14px;border-radius:8px;background:'+HTML_BG+';border-left:4px solid '+pair[2]+';">'
+        + '<h3 style="margin:0 0 8px;font-family:Oswald,\'Arial Narrow\',sans-serif;font-size:13px;text-transform:uppercase;color:'+HTML_NAVY+';">'+pair[1]+'</h3>'
+        + htmlPlanTable(key, plan) + '</div>';
+    });
+    html += htmlCard(HTML_GOLD, "Part 2 &mdash; Planning", planningBody);
+
+    var actionBody = htmlField("Sessions logged", String(state.action.log.length));
+    if(state.action.measurements.length){
+      actionBody += '<table style="width:100%;border-collapse:collapse;margin:8px 0 14px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:12px;">'
+        + '<tr style="background:'+HTML_NAVY+';color:#fff;"><th style="text-align:left;padding:6px 8px;border:1px solid '+HTML_NAVY+';">Measurement</th><th style="text-align:left;padding:6px 8px;border:1px solid '+HTML_NAVY+';">Pre</th><th style="text-align:left;padding:6px 8px;border:1px solid '+HTML_NAVY+';">Mid</th><th style="text-align:left;padding:6px 8px;border:1px solid '+HTML_NAVY+';">Final</th></tr>'
+        + state.action.measurements.map(function(m,idx){
+            var bg = idx % 2 ? HTML_BG : "#fff";
+            return '<tr style="background:'+bg+';"><td style="padding:6px 8px;border:1px solid '+HTML_LINE+';">'+escapeHtml(m.name||"Untitled")+'</td><td style="padding:6px 8px;border:1px solid '+HTML_LINE+';">'+escapeHtml(m.pre||"—")+'</td><td style="padding:6px 8px;border:1px solid '+HTML_LINE+';">'+escapeHtml(m.mid||"—")+'</td><td style="padding:6px 8px;border:1px solid '+HTML_LINE+';">'+escapeHtml(m.fin||"—")+'</td></tr>';
+          }).join("")
+        + '</table>';
+    }
+    if(state.action.evidence.length){
+      actionBody += '<p style="margin:8px 0 4px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:13px;"><strong style="color:'+HTML_NAVY+';">Evidence:</strong></p>'
+        + '<ul style="margin:0 0 10px;padding-left:20px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:13px;color:'+HTML_TEXT+';">'+state.action.evidence.map(function(e){ return '<li>['+escapeHtml(e.type)+'] '+escapeHtml(e.title||"Untitled")+(e.image?' (photo attached — see PDF export)':'')+(e.link?" — "+escapeHtml(e.link):"")+(e.note?" — "+escapeHtml(e.note):"")+'</li>'; }).join("")+'</ul>';
+    }
+    if(state.action.midReflections.length){
+      actionBody += '<p style="margin:8px 0 4px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:13px;"><strong style="color:'+HTML_NAVY+';">Mid-unit reflections:</strong></p>'
+        + '<ul style="margin:0 0 10px;padding-left:20px;font-family:\'Atkinson Hyperlegible\',Arial,sans-serif;font-size:13px;color:'+HTML_TEXT+';">'+state.action.midReflections.map(function(r){ return '<li>'+(r.date?escapeHtml(r.date)+' — ':'')+escapeHtml(r.text||"Not yet answered")+'</li>'; }).join("")+'</ul>';
+    } else {
+      actionBody += htmlField("Mid-unit reflections", "");
+    }
+    html += htmlCard(HTML_SKYBLUE, "Part 3 &mdash; Action", actionBody);
+
+    html += htmlCard(HTML_CRIMSON, "Part 4 &mdash; Reflection",
+      htmlField("Growth evidence", state.reflection.growthEvidence)
+      + htmlField("Challenges", state.reflection.challenges)
+      + htmlField("What I'd change", state.reflection.changed)
+      + htmlField("What's next", state.reflection.nextSteps));
+
+    return html;
+  }
+  function buildPlanSummaryHtml(){
+    var html = htmlBanner("Training & Practice Plan", state.meta.studentName ? "Student: "+state.meta.studentName : "");
+    [["fitnessPlan","Fitness Plan",HTML_GOLD],["skillsPlan","Skills Plan",HTML_SKYBLUE]].forEach(function(pair){
+      html += htmlCard(pair[2], pair[1], htmlPlanTable(pair[0], state.planning[pair[0]]));
+    });
+    return html;
+  }
+  async function exportSummary(){
+    var downloads = window.claude ? await window.claude.use("downloads").catch(function(){ return null; }) : null;
+    var data = buildSummaryMd();
+    var namePart = slug(state.meta.studentName);
+    var filename = "pafl-portfolio-summary"+(namePart?"-"+namePart:"")+".md";
+    if(downloads){
+      try{
+        await downloads.save({filename:filename, data:data});
+        toast("Summary saved");
+      }catch(e){ toast("Couldn't save — try again"); }
+    } else {
+      showFallbackText(data, "Portfolio summary", "Click \"Select all\" below, then copy and paste it straight into a Canvas text-entry box, a Google Doc, or a new file named "+filename+" to save it.", {html: buildSummaryHtml()});
+    }
+  }
+
+  /* ============ PDF export (for Canvas submission) ============ */
+  function makePdfWriter(doc){
+    var y = PDF_MARGIN;
+    function newPage(){ doc.addPage(); y = PDF_MARGIN; }
+    function ensure(h){ if(y + h > PDF_PAGE_H - PDF_MARGIN) newPage(); }
+    function heading(text){
+      ensure(34);
+      doc.setFillColor(PDF_CRIMSON[0],PDF_CRIMSON[1],PDF_CRIMSON[2]);
+      doc.rect(PDF_MARGIN, y, PDF_CONTENT_W, 22, "F");
+      doc.setTextColor(255,255,255);
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(11);
+      doc.text(text.toUpperCase(), PDF_MARGIN+10, y+15);
+      y += 22 + 12;
+    }
+    function subheading(text){
+      ensure(16);
+      doc.setTextColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]);
+      doc.setFont("helvetica","bold");
+      doc.setFontSize(10.5);
+      doc.text(text, PDF_MARGIN, y);
+      y += 15;
+    }
+    function body(text){
+      var filled = !!(text && String(text).trim());
+      var t = filled ? String(text) : "Not yet answered.";
+      doc.setFont("helvetica", filled ? "normal" : "italic");
+      doc.setFontSize(9.5);
+      var c = filled ? PDF_TEXT : PDF_MUTED;
+      doc.setTextColor(c[0],c[1],c[2]);
+      var raw = t.split("\n");
+      raw.forEach(function(chunk){
+        var lines = doc.splitTextToSize(chunk || " ", PDF_CONTENT_W);
+        lines.forEach(function(line){ ensure(13); doc.text(line, PDF_MARGIN, y); y += 13; });
+      });
+      y += 7;
+    }
+    function field(label, value){ subheading(label); body(value); }
+    function divider(){
+      ensure(14);
+      doc.setDrawColor(PDF_LINE[0],PDF_LINE[1],PDF_LINE[2]);
+      doc.line(PDF_MARGIN, y, PDF_MARGIN+PDF_CONTENT_W, y);
+      y += 14;
+    }
+    function table(headers, rows, colRatios){
+      var widths = colRatios.map(function(r){ return r*PDF_CONTENT_W; });
+      var padX = 4;
+      ensure(20);
+      doc.setFillColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]);
+      doc.rect(PDF_MARGIN, y, PDF_CONTENT_W, 18, "F");
+      doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(8.5);
+      var hx = PDF_MARGIN;
+      headers.forEach(function(h,i){ doc.text(h, hx+padX, y+12); hx += widths[i]; });
+      y += 18;
+      doc.setFont("helvetica","normal"); doc.setFontSize(8.5);
+      if(rows.length === 0){
+        ensure(16);
+        doc.setTextColor(PDF_MUTED[0],PDF_MUTED[1],PDF_MUTED[2]);
+        doc.setFont("helvetica","italic");
+        doc.text("Nothing added yet.", PDF_MARGIN+padX, y+11);
+        y += 20;
+        return;
+      }
+      rows.forEach(function(row, ri){
+        var cellLines = row.map(function(cell, ci){ return doc.splitTextToSize(cell || "—", widths[ci]-padX*2); });
+        var lineCount = Math.max.apply(null, cellLines.map(function(l){ return l.length; }));
+        var rowH = lineCount*11 + 6;
+        ensure(rowH);
+        if(ri % 2 === 1){ doc.setFillColor(244,245,248); doc.rect(PDF_MARGIN, y, PDF_CONTENT_W, rowH, "F"); }
+        var cx = PDF_MARGIN;
+        doc.setTextColor(PDF_TEXT[0],PDF_TEXT[1],PDF_TEXT[2]);
+        cellLines.forEach(function(lines, ci){
+          lines.forEach(function(line, li){ doc.text(line, cx+padX, y+11+li*11); });
+          cx += widths[ci];
+        });
+        y += rowH;
+        doc.setDrawColor(PDF_LINE[0],PDF_LINE[1],PDF_LINE[2]);
+        doc.line(PDF_MARGIN, y, PDF_MARGIN+PDF_CONTENT_W, y);
+      });
+      y += 10;
+    }
+    return {
+      ensure: ensure, newPage: newPage, heading: heading, subheading: subheading,
+      body: body, field: field, divider: divider, table: table,
+      getY: function(){ return y; }, setY: function(v){ y = v; }
+    };
+  }
+  function drawCover(doc, w, title, subtitle){
+    doc.setFillColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]);
+    doc.rect(0,0,PDF_PAGE_W,150,"F");
+    doc.setTextColor(255,255,255);
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(20);
+    doc.text(title, PDF_MARGIN, 70);
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(14);
+    doc.text(subtitle, PDF_MARGIN, 95);
+    doc.setFontSize(10);
+    doc.setTextColor(220,228,240);
+    doc.text(state.meta.studentName || "Name not entered", PDF_MARGIN, 122);
+    doc.text("Exported " + new Date().toLocaleDateString(), PDF_MARGIN, 138);
+    w.setY(180);
+  }
+  function buildPortfolioPdf(){
+    if(!window.jspdf || !window.jspdf.jsPDF) return null;
+    var doc = new window.jspdf.jsPDF({unit:"pt", format:"letter"});
+    var w = makePdfWriter(doc);
+    var heading = w.heading, field = w.field, divider = w.divider, ensure = w.ensure;
+
+    drawCover(doc, w, "PHYSICAL ACTIVITY FOR LIFE", "Portfolio");
+
+    heading("Part 1 — Goal Setting");
+    field("Why I chose these goals", state.goals.why);
+    [["fitness","Fitness Goal"],["skill","Skills Goal"]].forEach(function(pair){
+      var kind = pair[0], label = pair[1], color = kind === "fitness" ? PDF_GOLD : PDF_SKYBLUE;
+      ensure(18);
+      doc.setFillColor(color[0],color[1],color[2]);
+      doc.circle(PDF_MARGIN+4, w.getY()-3, 4, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(10.5);
+      doc.setTextColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]);
+      doc.text(label, PDF_MARGIN+14, w.getY());
+      w.setY(w.getY() + 14);
+      if(kind === "fitness"){
+        field("Component(s) of fitness targeted", state.goals.fitness.components.join(", "));
+      }
+      SMART_FIELDS.forEach(function(f){ field(f.letter + " — " + f.label, state.goals[kind][f.key]); });
+      field("In my own words", state.goals[kind].ownWords);
+      divider();
+    });
+
+    heading("Part 2 — Planning");
+    field("Components of fitness targeted", state.planning.components.join(", "));
+    field("Source", [state.planning.programName, state.planning.credibility].filter(Boolean).join(" — "));
+    field("Why this source", state.planning.whyChosen);
+    if(state.planning.exercises.length){
+      field("Exercises", state.planning.exercises.map(function(e,i){ return (i+1)+". "+(e||"—"); }).join("\n"));
+    }
+    field("Expert videos", [state.planning.video1, state.planning.video2].filter(Boolean).join("\n"));
+    field("Component parts of the activity", state.planning.componentParts);
+    if(state.planning.subSkills.length){
+      field("Sub-skills", state.planning.subSkills.map(function(s){ return (s.name||"Untitled")+": "+(s.learnings||""); }).join("\n"));
+    }
+    field("Sub-skills to develop", state.planning.subSkillsToDevelop);
+    if(state.planning.fitnessPlanLink) field("Fitness Plan link", state.planning.fitnessPlanLink);
+    if(state.planning.skillsPlanLink) field("Skills Plan link", state.planning.skillsPlanLink);
+
+    heading("Part 3 — Action");
+    var logText = state.action.log.length
+      ? state.action.log.slice().sort(function(a,b){ return a.date.localeCompare(b.date); }).map(function(l){ return l.date+" · "+l.goal; }).join("\n")
+      : "";
+    field("Sessions logged (" + state.action.log.length + ")", logText);
+    if(state.action.measurements.length){
+      field("Measurements", state.action.measurements.map(function(m){
+        return (m.name||"Untitled") + " — pre: " + (m.pre||"—") + ", mid: " + (m.mid||"—") + ", final: " + (m.fin||"—");
+      }).join("\n"));
+    } else {
+      field("Measurements", "");
+    }
+    if(state.action.evidence.length){
+      w.subheading("Evidence");
+      state.action.evidence.forEach(function(e, i){
+        ensure(14);
+        doc.setFont("helvetica","bold"); doc.setFontSize(9.5);
+        doc.setTextColor(PDF_TEXT[0],PDF_TEXT[1],PDF_TEXT[2]);
+        doc.text((i+1)+". [" + e.type + "] " + (e.title||"Untitled"), PDF_MARGIN, w.getY());
+        w.setY(w.getY() + 13);
+        if(e.type === "photo" && e.image){
+          var evMaxW = 140, evMaxH = 140;
+          var evIw = e.imageW || 4, evIh = e.imageH || 3;
+          var evScale = Math.min(evMaxW/evIw, evMaxH/evIh);
+          var evDw = evIw*evScale, evDh = evIh*evScale;
+          ensure(evDh + 8);
+          try{ doc.addImage(e.image, "JPEG", PDF_MARGIN, w.getY(), evDw, evDh); }catch(err){}
+          w.setY(w.getY() + evDh + 6);
+        }
+        var evMeta = [e.link ? "Link: "+e.link : "", e.note || ""].filter(Boolean).join("\n");
+        if(evMeta) w.body(evMeta); else w.setY(w.getY() + 7);
+      });
+    } else {
+      field("Evidence", "");
+    }
+    if(state.action.midReflections.length){
+      field("Mid-unit reflections", state.action.midReflections.map(function(r){ return (r.date||"No date")+": "+(r.text||"Not yet answered"); }).join("\n"));
+    } else {
+      field("Mid-unit reflections", "");
+    }
+
+    heading("Part 4 — Reflection");
+    field("What evidence shows growth", state.reflection.growthEvidence);
+    field("Challenges and how I handled them", state.reflection.challenges);
+    field("What I'd do differently", state.reflection.changed);
+    field("What's next", state.reflection.nextSteps);
+
+    return doc;
+  }
+  async function exportPdf(){
+    var doc = buildPortfolioPdf();
+    if(!doc){ toast("PDF export needs a moment to load — try again shortly, or use the .md export"); return; }
+    var blob = doc.output("blob");
+    var downloads = window.claude ? await window.claude.use("downloads").catch(function(){ return null; }) : null;
+    var namePart = slug(state.meta.studentName);
+    var filename = "pafl-portfolio"+(namePart?"-"+namePart:"")+".pdf";
+    if(downloads){
+      try{
+        await downloads.save({filename:filename, data:blob});
+        toast("PDF saved — upload this to Canvas");
+      }catch(e){ toast("Couldn't save — try again"); }
+    } else {
+      showPrintFallback("Portfolio PDF", "In the print dialog, choose \"Save as PDF\" as your printer/destination to download it as a file — or print it directly. Then upload that file to Canvas.", printPortfolio, {text: buildSummaryMd(), title: "Portfolio summary", hint: "Select all and copy this, then paste it into a Canvas text box, a Google Doc, or a new document.", html: buildSummaryHtml()});
+    }
+  }
+
+  function buildPlanPdf(){
+    if(!window.jspdf || !window.jspdf.jsPDF) return null;
+    var doc = new window.jspdf.jsPDF({unit:"pt", format:"letter"});
+    var w = makePdfWriter(doc);
+
+    drawCover(doc, w, "TRAINING & PRACTICE PLAN", "Physical Activity for Life");
+
+    [["fitnessPlan","Fitness Plan", PDF_GOLD],
+     ["skillsPlan","Skills Plan", PDF_SKYBLUE]].forEach(function(pair){
+      var key = pair[0], label = pair[1], color = pair[2];
+      var plan = state.planning[key];
+      var itemLabel = planItemLabel(key);
+      w.heading(label);
+      w.ensure(4);
+      doc.setFillColor(color[0],color[1],color[2]);
+      doc.circle(PDF_MARGIN+4, w.getY()-3, 4, "F");
+      w.field("Plan overview", plan.overview);
+      var isFitness = key === "fitnessPlan";
+      var rows = plan.items.map(function(it){
+        return isFitness ? [it.day, it.name, it.sets, it.reps, it.weight, it.notes] : [it.day, it.name, it.detail, it.notes];
+      });
+      if(isFitness){
+        w.table(
+          ["Day(s)", itemLabel, "Sets", "Reps", "Weight", "Notes"],
+          rows,
+          [0.15, 0.24, 0.11, 0.11, 0.14, 0.25]
+        );
+      } else {
+        w.table(
+          ["Day(s)", itemLabel, "Duration", "Notes"],
+          rows,
+          [0.2, 0.3, 0.22, 0.28]
+        );
+      }
+      if(plan.history.length){
+        w.subheading("Recent changes");
+        var historyRows = plan.history.slice(-15).slice().reverse().map(function(e){
+          var p = historyEntryParts(e);
+          return [p.when, p.text];
+        });
+        w.table(["When", "Change"], historyRows, [0.22, 0.78]);
+      }
+    });
+
+    return doc;
+  }
+  async function exportPlanPdf(){
+    var doc = buildPlanPdf();
+    if(!doc){ toast("PDF export needs a moment to load — try again shortly"); return; }
+    var blob = doc.output("blob");
+    var downloads = window.claude ? await window.claude.use("downloads").catch(function(){ return null; }) : null;
+    var namePart = slug(state.meta.studentName);
+    var filename = "pafl-plan"+(namePart?"-"+namePart:"")+".pdf";
+    if(downloads){
+      try{
+        await downloads.save({filename:filename, data:blob});
+        toast("Plan saved — ready to print");
+      }catch(e){ toast("Couldn't save — try again"); }
+    } else {
+      showPrintFallback("Training & Practice Plan", "In the print dialog, choose \"Save as PDF\" as your printer/destination to download it — or print it directly to take with you.", printPlanOnly, {text: buildPlanSummaryText(), title: "Training & Practice Plan", hint: "Select all and copy this to keep or paste elsewhere.", html: buildPlanSummaryHtml()});
+    }
+  }
+
+  function renderAll(){
+    bindSimpleFields();
+    renderGoals();
+    renderPlanning();
+    renderLog();
+    renderActionPlanReference();
+    renderMeasurements();
+    renderEvidence();
+    renderMidReflections();
+    renderTodos();
+    renderProgressSummary();
+    renderOverview();
+  }
+  function wireImport(){
+    var fileInput = document.getElementById("file-import");
+    var pendingData = null;
+    document.getElementById("btn-import-json").addEventListener("click", function(){ fileInput.click(); });
+    fileInput.addEventListener("change", function(){
+      var f = fileInput.files[0];
+      if(!f) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        try{
+          pendingData = migrateLegacyMidReflection(migrateLegacyPlanning(JSON.parse(reader.result)));
+          document.getElementById("modal-import").classList.add("is-open");
+        }catch(e){ toast("That file isn't valid JSON — if you pasted it into Word or Google Docs, the quote marks may have changed. Try a plain-text editor instead."); }
+        fileInput.value = "";
+      };
+      reader.readAsText(f);
+    });
+    document.getElementById("modal-import-cancel").addEventListener("click", function(){
+      document.getElementById("modal-import").classList.remove("is-open");
+      pendingData = null;
+    });
+    document.getElementById("modal-import-confirm").addEventListener("click", function(){
+      if(pendingData){
+        state = normalizeState(deepMerge(emptyState(), pendingData));
+        scheduleSave();
+        renderAll();
+        toast("Backup imported");
+      }
+      document.getElementById("modal-import").classList.remove("is-open");
+      pendingData = null;
+    });
+    document.getElementById("btn-export-json").addEventListener("click", exportJson);
+    document.getElementById("btn-export-summary").addEventListener("click", exportSummary);
+    document.getElementById("btn-export-pdf").addEventListener("click", exportPdf);
+    document.getElementById("btn-export-plan-pdf").addEventListener("click", exportPlanPdf);
+  }
+
+  /* ============ Boot ============ */
+  function start(){
+    buildNav();
+    wireAdders();
+    wireToolbar();
+    wireImport();
+    wireFallbackModal();
+    renderAll();
+    showSection("overview");
+  }
+  if(window.claude && window.claude.hot){
+    window.claude.hot.snapshot(function(){ return {}; });
+    window.claude.hot.ready ? window.claude.hot.ready(start) : start();
+  } else {
+    start();
+  }
+})();
+</script>
+
+</body></html>
