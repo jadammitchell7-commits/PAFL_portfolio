@@ -1119,8 +1119,8 @@ if(!window.claude){
   function planItemLabel(trackKey){ return trackKey === "fitnessPlan" ? "Exercise" : "Drill"; }
   function planExtraFields(trackKey){
     return trackKey === "fitnessPlan"
-      ? [{key:"day", label:"Day(s)", placeholder:"e.g. Mon/Wed"}, {key:"sets", label:"Sets", placeholder:"e.g. 3"}, {key:"reps", label:"Reps", placeholder:"e.g. 12"}, {key:"weight", label:"Weight", placeholder:"e.g. 20kg"}]
-      : [{key:"day", label:"Day(s)", placeholder:"e.g. Tue/Thu"}, {key:"detail", label:"Duration", placeholder:"e.g. 20 min"}];
+      ? [{key:"sets", label:"Sets", placeholder:"e.g. 3"}, {key:"reps", label:"Reps", placeholder:"e.g. 12"}, {key:"weight", label:"Weight", placeholder:"e.g. 20kg"}]
+      : [{key:"detail", label:"Duration", placeholder:"e.g. 20 min"}];
   }
   function planFieldLabel(trackKey, key){
     if(key === "notes") return "Notes";
@@ -1848,8 +1848,8 @@ if(!window.claude){
       if(plan.items.length){
         plan.items.forEach(function(it){
           var meta = key === "fitnessPlan"
-            ? [it.day ? "day: "+it.day : "", it.sets ? "sets: "+it.sets : "", it.reps ? "reps: "+it.reps : "", it.weight ? "weight: "+it.weight : ""].filter(Boolean).join(", ")
-            : [it.day ? "day: "+it.day : "", it.detail ? "duration: "+it.detail : ""].filter(Boolean).join(", ");
+            ? [it.sets ? "sets: "+it.sets : "", it.reps ? "reps: "+it.reps : "", it.weight ? "weight: "+it.weight : ""].filter(Boolean).join(", ")
+            : [it.detail ? "duration: "+it.detail : ""].filter(Boolean).join(", ");
           lines.push("   - " + (it.name||"Untitled") + (meta?" — "+meta:"") + (it.notes?" ("+it.notes+")":""));
         });
       } else {
@@ -1916,8 +1916,8 @@ if(!window.claude){
       if(plan.items.length){
         plan.items.forEach(function(it){
           var meta = key === "fitnessPlan"
-            ? [it.day ? "day: "+it.day : "", it.sets ? "sets: "+it.sets : "", it.reps ? "reps: "+it.reps : "", it.weight ? "weight: "+it.weight : ""].filter(Boolean).join(", ")
-            : [it.day ? "day: "+it.day : "", it.detail ? "duration: "+it.detail : ""].filter(Boolean).join(", ");
+            ? [it.sets ? "sets: "+it.sets : "", it.reps ? "reps: "+it.reps : "", it.weight ? "weight: "+it.weight : ""].filter(Boolean).join(", ")
+            : [it.detail ? "duration: "+it.detail : ""].filter(Boolean).join(", ");
           lines.push("- " + (it.name||"Untitled") + (meta?" — "+meta:"") + (it.notes?" ("+it.notes+")":""));
         });
       } else {
@@ -2329,19 +2329,19 @@ if(!window.claude){
       w.field("Plan overview", plan.overview);
       var isFitness = key === "fitnessPlan";
       var rows = plan.items.map(function(it){
-        return isFitness ? [it.day, it.name, it.sets, it.reps, it.weight, it.notes] : [it.day, it.name, it.detail, it.notes];
+        return isFitness ? [it.name, it.sets, it.reps, it.weight, it.notes] : [it.name, it.detail, it.notes];
       });
       if(isFitness){
         w.table(
-          ["Day(s)", itemLabel, "Sets", "Reps", "Weight", "Notes"],
+          [itemLabel, "Sets", "Reps", "Weight", "Notes"],
           rows,
-          [0.15, 0.24, 0.11, 0.11, 0.14, 0.25]
+          [0.30, 0.12, 0.12, 0.16, 0.30]
         );
       } else {
         w.table(
-          ["Day(s)", itemLabel, "Duration", "Notes"],
+          [itemLabel, "Duration", "Notes"],
           rows,
-          [0.2, 0.3, 0.22, 0.28]
+          [0.38, 0.24, 0.38]
         );
       }
       if(plan.history.length){
